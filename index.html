@@ -565,7 +565,7 @@ function finPrintReport(mk){mk=mk||FM;const rev=finRevenue(mk),sal=S.fin.sal.fil
   (sal.length?`<h2>Employee Fees & Salaries</h2>`+tbl2(['Date','Name','Role','Amount'],sal.map(x=>[fd(x.ts),H(x.name),H(x.role),ETB(x.amount)]),['','','Total',ETB(salT)],[3]):'')+
   (exp.length?`<h2>Clinic Expenses</h2>`+tbl2(['Date','Expense','Description','Amount'],exp.map(x=>[fd(x.ts),H(x.item),H(x.desc||''),ETB(x.amount)]),['','','Total',ETB(expT)],[3]):''))}
 let FY=new Date().getFullYear(),FYD=null;
-const FAPI=/vercel\.app$/.test(location.hostname)?'':'https://dentalclinicmanagments-app.vercel.app';
+const FAPI=/vercel\.app$/.test(location.hostname)?'':'https://dentalclincrecord.vercel.app';
 async function finYear(csvOut){const box=$('finyr');if(!box)return;box.innerHTML='<p class="text-sm text-gray-500">Loading...</p>';
  try{const t=await DB.token();if(!t)throw new Error('Please sign in again.');
   const r=await fetch(FAPI+'/api/finance?year='+FY+(csvOut?'&format=csv':'')+(U.role=='admin'?'&clinic='+encodeURIComponent(C.id):''),{headers:{Authorization:'Bearer '+t}});
