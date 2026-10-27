@@ -346,7 +346,7 @@ function patient(){const p=gp();if(!p)return recent();const rc=U.role=='receptio
  <div class="bg-red-100 border border-red-300 rounded text-red-800 text-xs p-2 my-2"><b>Last Doctor:</b><br>${H(p.doc)}</div><div class="text-sm text-gray-600 mb-3">${fdate(p.date)}</div>
  <div class="text-left bg-white shadow-inner rounded p-3 h-32 overflow-auto mb-3"><b>Basic Information</b>${bi}</div>
  <div class="text-sm font-bold mb-3">Finished: <button onclick="fin()" class="ml-2 text-white text-sm px-4 py-1 rounded-full ${p.fin?'bg-green-500':'bg-red-500'}">${p.fin?'On':'Off'}</button></div>
- <button onclick="pcard()" class="w-full border border-red-300 text-red-600 rounded-md py-2 text-sm mb-2"><i class="fa fa-id-card mr-1"></i>Patient Card</button>${rc?'':`<button onclick="MENU=!MENU;go('patient')" class="w-full bg-gray-500 text-white rounded-md py-3 text-sm mb-2">Dental records <i class="fa fa-chevron-down ml-1"></i></button>`}
+ <button onclick="pcard()" class="w-full border border-red-300 text-red-600 rounded-md py-2 text-sm mb-2"><i class="fa fa-id-card mr-1"></i>Patient Card</button><button onclick="clinicalSummaryPrint()" class="w-full border border-red-300 text-red-600 rounded-md py-2 text-sm mb-2"><i class="fa fa-print mr-1"></i>Clinical summary (print)</button>${rc?'':`<button onclick="MENU=!MENU;go('patient')" class="w-full bg-gray-500 text-white rounded-md py-3 text-sm mb-2">Dental records <i class="fa fa-chevron-down ml-1"></i></button>`}
  ${MENU&&!rc?`<div class="bg-white shadow-xl rounded-lg p-2 mb-2 text-left">${DR.map(d=>`<div onclick="SK='${d[0]}';MENU=0;go('patient')" class="sb mb-2 cursor-pointer">${d[1]}</div>`).join('')}</div>`:''}
  <div class="space-y-3">${SIDE.filter(s=>!rc||RA.includes(s[0])).map(s=>`<button class="sb ${SK==s[0]?'on':''}" onclick="SK='${s[0]}';go('patient')">${s[1]}</button>`).join('')}</div></div>
  <div class="bg-white rounded-lg shadow p-5 flex-1 w-full min-h-[420px]">${sec(p)}</div></div>`}
@@ -355,7 +355,7 @@ function sec(p){const k=SK,c=SEC[k],a=p.d[k]||[];
  if(k=='presc')return presc(p);if(k=='consent')return consent(p);
  const sub=k=='inv'?`<p class="text-center text-gray-500 -mt-3 mb-3">${H(p.name)}</p>`:'';
  const sm=k=='inv'&&a.length?(()=>{const T=a.reduce((z,x)=>z+tot(x),0),P=a.reduce((z,x)=>z+(+x.paid||0),0);return `<div class="grid grid-cols-3 gap-2 text-center text-xs mb-4"><div class="bg-red-50 rounded p-2">Billed<br><b class="text-sm">${ETB(T)}</b></div><div class="bg-green-50 rounded p-2">Paid<br><b class="text-sm">${ETB(P)}</b></div><div class="bg-red-50 rounded p-2">Balance<br><b class="text-sm">${ETB(T-P)}</b></div></div>`})():'';
- const extra=k=='rec'?gb('view Dental chart','chart()')+`<button onclick="recSummaryPrint()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print summary</button>`:'';
+ const extra=k=='cert'?`<button onclick="medCert()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print certificate</button><button onclick="medCert('blank')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">Blank</button>`:k=='rec'?gb('view Dental chart','chart()')+`<button onclick="recSummaryPrint()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print summary</button>`:'';
  return hd(c.t,extra+gb(c.b+' +',`addI('${k}')`))+sub+sm+(a.length?(k=='img'?gal(a):a.map((x,i)=>iCard(k,x,i)).join('')):`<p class="text-gray-500">${c.e}</p>`)}
 const net=x=>(+x.price||0)*(+x.qty||1)-(+x.disc||0),vatAmt=x=>x.vat==VATO[1]?Math.round(net(x)*15)/100:0,tot=x=>net(x)+vatAmt(x);
 function iCard(k,x,i){const c=SEC[k],ic=(cl,t,a)=>`<i class="fa ${t} ${cl} cursor-pointer" onclick="${a}"></i>`,del=ic('text-rose-600','fa-trash',`delI('${k}',${i})`),ed=ic('text-red-600','fa-pen',`editI('${k}',${i})`);
@@ -364,7 +364,7 @@ function iCard(k,x,i){const c=SEC[k],ic=(cl,t,a)=>`<i class="fa ${t} ${cl} curso
   <div class="grid grid-cols-2 gap-2 mt-3"><div><b>Total:</b> ${ETB(t)}</div>${inv?`<div><b>Paid:</b> ${ETB(paid)}</div><div><b>Balance:</b> ${ETB(bal)}</div><div><b>Status:</b> <span class="px-2 rounded ${stt[1]}">${stt[0]}</span></div>`:''}<div><b>Created By:</b> ${H(x.by||U.name)}</div><div><b>Discount:</b> ${ETB(x.disc)}</div>${vatAmt(x)?`<div><b>VAT 15%:</b> ${ETB(vatAmt(x))}</div>`:''}</div>
   <b class="block mt-3 border-b pb-1">Items</b><div class="bg-gray-100 rounded p-3 mt-2 flex justify-between gap-2"><div>${H(x.item)}${x.desc?' – '+H(x.desc):''} (x${x.qty||1})<br><span class="text-gray-500">Price per unit: ${ETB(x.price)}</span></div><b>${ETB(t)}</b></div>${inv?payLines(gp(),x,i):''}</div>`}
  if(k=='note')return `<div class="bg-yellow-50 rounded-lg shadow p-4 mb-3 text-sm"><div class="flex justify-between"><b class="text-base">${H(x.title||'Note')}</b><div class="space-x-3">${ed}${del}</div></div><p class="whitespace-pre-wrap my-2">${H(x.note)}</p><div class="text-xs text-gray-500">${H(x.date)} · ${H(x.by||'')}</div></div>`;
- return `<div class="bg-gray-50 rounded-lg shadow p-4 mb-3 text-sm flex justify-between gap-3"><div>${c.f.filter(f=>x[f[0]]).map(f=>`<div><b>${f[1]}:</b> ${H(f[2]=='date'?fdate(x[f[0]]):x[f[0]])}</div>`).join('')}${x.date?`<div class="text-xs text-gray-400 mt-1">${H(dsp(x))} · ${H(x.by||'')}</div>`:''}</div><div class="space-x-3 whitespace-nowrap">${ed}${del}</div></div>`}
+ return `<div class="bg-gray-50 rounded-lg shadow p-4 mb-3 text-sm flex justify-between gap-3"><div>${c.f.filter(f=>x[f[0]]).map(f=>`<div><b>${f[1]}:</b> ${H(f[2]=='date'?fdate(x[f[0]]):x[f[0]])}</div>`).join('')}${x.date?`<div class="text-xs text-gray-400 mt-1">${H(dsp(x))} · ${H(x.by||'')}</div>`:''}</div><div class="space-x-3 whitespace-nowrap">${k=='cert'?ic('text-purple-600','fa-print',`medCert(${i})`):''}${ed}${del}</div></div>`}
 function fF(k,x){x=x||{};const O=(l,c)=>[...new Set([...(c?[c]:[]),...l])];return SEC[k].f.map(f=>{if(f[2]!='sel')return f;const K=f[0];return K=='item'?[K,f[1],'sel',O(['Custom item',...S.proc.map(p=>p.n)],x[K])]:K=='treat'?[K,f[1],'sel',O(['',...S.proc.map(p=>p.n)],x[K])]:K=='method'?[K,f[1],'sel',O(PAYM,x[K])]:K=='finding'?[K,f[1],'sel',O(['',...S.dis.map(d=>d.name)],x[K])]:f})}
 function rs(f,max,cb,png){
  const bad_=()=>alert('This picture could not be opened. Please take a new photo with the camera, or choose a JPG / PNG picture (HEIC or screenshots from some apps are not supported).');
@@ -661,6 +661,51 @@ function stmt(){const p=S.patients.find(x=>x.id==PRP);if(!p)return;const L=allIn
 function recSum(){const p=S.patients.find(x=>x.id==PRP);if(!p)return;recSummaryPrint(p.id)}
 function apSlip(){const p=S.patients.find(x=>x.id==PRP);if(!p)return;const n=allAppts().filter(a=>a.p.id==p.id&&a.ts>=sod(NOW())).shift();if(!n)return alert('This patient has no upcoming appointment.');printHtml('Appointment - '+p.name,docHead('Appointment Slip','')+pInfo(p)+`<p style="font-size:18px;margin:24px 0"><b>${fd(n.ts)}</b> ${H(n.x.time||'')}</p><p>${H(n.x.note||'')}</p><p class="muted">Please arrive 10 minutes early and bring your patient card.</p>`)}
 
+/* ---------- Clinic paper-style prints: patient clinical summary card + medical certificate (Amharic / English) ---------- */
+/* Clinic letterhead details used on these prints (edit here to change). Keyed by clinic id. */
+const CLINIC_INFO={kal:{am:'ቃል ስፔሻሊቲ ዴንታል ክሊኒክ',phone:'0940734343 / 0911141621',addr:'አድራሻ፦ ታይዋን ጉልላት ህንፃ 2ኛ ፎቅ'}};
+const cInfo=()=>CLINIC_INFO[C.id]||{am:'',phone:'',addr:''};
+const cLetterhead=(am,en)=>{const i=cInfo();return `<div class="cl-h"><div class="lgo">${C.logo?`<img src="${C.logo}">`:`<svg viewBox="0 0 100 100">${ICONS[C.icon]||ICONS.tooth}</svg>`}</div><div class="cl-hn">${i.am?`<div class="cl-am">${H(i.am)}</div>`:''}<div class="cl-en">${H(C.name)}</div>${i.phone?`<div class="cl-ph">&#9742; ${H(i.phone)}</div>`:''}</div></div>${am?`<div class="cl-badge"><b>${am}</b><br>${en}</div>`:''}`};
+const CL_CSS=`<style>body{font-family:'Noto Sans Ethiopic','Nyala','Abyssinica SIL','Kefa',Arial,sans-serif;font-size:12.5px;line-height:1.4}.cl-h{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:6px}.cl-hn{text-align:left}.cl-am{font-size:20px;font-weight:bold}.cl-en{font-size:18px;font-weight:bold}.cl-ph{font-size:13px;letter-spacing:1px;margin-top:2px}.cl-badge{width:60%;margin:8px auto 10px;border:2px dashed #444;border-radius:16px;text-align:center;padding:5px;font-size:15px}.cl-row{display:flex;gap:6px;align-items:flex-end;margin:8px 0}.cl-l{white-space:nowrap}.cl-v{flex:1;border-bottom:1px solid #333;min-height:18px;padding:0 4px}.cl-top{display:flex;gap:18px;margin-top:10px}.cl-top>div{flex:1}.cl-hx{font-size:11.5px}.cl-hx div{display:flex;justify-content:space-between;gap:8px;padding:2px 0}.cl-bx{display:inline-block;width:13px;height:13px;border:1.5px solid #222;text-align:center;line-height:11px;font-size:12px;font-weight:bold;flex:none}table.cl-t{width:100%;border-collapse:collapse;margin-top:12px;border:1.5px solid #222}table.cl-t th{background:#fff;color:#111;text-align:left;border:1px solid #222;padding:5px 8px;font-size:13px}table.cl-t td{border:1px solid #444;padding:6px 8px;height:26px;vertical-align:top}.tg{display:inline-block;font-size:10px;font-weight:bold;border:1px solid #555;border-radius:4px;padding:0 4px;margin-right:4px;white-space:nowrap}.cl-line{border-bottom:1px solid #333;height:24px;margin:2px 0}.cl-sec{margin-top:14px;font-size:13.5px}.cl-sig{display:flex;gap:30px;margin-top:34px}.cl-sig>div{flex:1;border-top:1px solid #333;text-align:center;padding-top:3px}.cl-foot{margin-top:26px;font-weight:bold;font-size:14px}</style>`;
+const clRow=(am,en,val,w)=>`<div class="cl-row"><span class="cl-l">${am?am+' / ':''}${en}:</span><span class="cl-v" style="${w?'flex:none;width:'+w:''}">${val==null||val===''?'&nbsp;':H(val)}</span></div>`;
+
+/* ---- patient clinical summary card (Hx, medications, investigations, referral, biopsy, consent) ---- */
+const HXLIST=[['ደም ግፊት','Hypertension',['Hypertension']],['ስኳር በሽታ','Diabetes',['Diabetes Mellitus']],['የደም መፍሰስ ችግር','Bleeding disorder',['Bleeding Disorder','Coagulopathy']],['የሳንባ በሽታ','TB / pneumonia',[],/\btb\b|pneumonia|tuberc/i],['የሚጥ በሽታ','Epilepsy',['Epilepsy']],['የጉበት በሽታ','Hepatitis A, B, C',[],/hepat/i],['ኤችአይቪ/ኤድስ','HIV/AIDS CD4',['Immune Deficiency'],/\bhiv\b|aids/i],['የሚወስደው መድሃኒት ካለ','Any drug taking',['Medications Taken']],['አለርጂ','Allergy',['Allergies']],['እርግዝና (ለሴቶች)','Pregnancy',['Pregnancy']],['ሌላ በሽታ ካለ','Any other disease',['Anemia','Asthma','Heart Disease','Organopathy']]];
+function clinicalItems(p){const d=p.d,L=[],add=(x,tag,txt)=>{if(txt&&String(txt).trim())L.push({ts:tsOf(x,p),tag,txt:String(txt).trim()})},j=(...a)=>a.filter(v=>v!=null&&String(v).trim()!=='').join(' - ');
+ (d.health||[]).forEach(x=>add(x,'Hx',j(x.bp&&'BP '+x.bp,x.allergy&&'Allergy: '+x.allergy,x.note)));
+ (d.note||[]).forEach(x=>add(x,'Hx',j(x.title,x.note)));
+ (d.rec||[]).forEach(x=>add(x,'Dx/Tx',j(x.tooth&&'Tooth '+x.tooth,x.finding,x.treat&&'Tx: '+x.treat,x.note)));
+ (d.ortho||[]).forEach(x=>add(x,'Ortho',j(x.type,x.note)));
+ (d.presc||[]).forEach(x=>add(x,'Rx',j(x.dx,(x.meds||[]).join(', '),x.txt)));
+ (d.lab||[]).forEach(x=>add(x,'Lab',j(x.req,x.lab&&'('+x.lab+')',x.done=='Yes'?'done':'ordered')));
+ (d.img||[]).forEach(x=>add(x,'X-ray',j(x.kind,x.tooth&&'Tooth/Area '+x.tooth,x.note)));
+ (d.ref||[]).forEach(x=>add(x,'Referral',j(x.to&&'To '+x.to,x.why)));
+ (d.fna||[]).forEach(x=>add(x,x.type=='Biopsy'?'Biopsy':'FNA',j(x.site,x.note)));
+ return L.sort((a,b)=>a.ts-b.ts)}
+function clinicalSummaryHtml(p){const c=p.d.consent||{ck:[],o:'',t:''},ck=new Set(c.ck||[]),txt=(c.o||'')+' '+((p.d.health||[]).map(x=>x.allergy||'').join(' ')),items=clinicalItems(p),
+ on=h=>h[2].some(n=>ck.has(n))||(h[3]&&h[3].test(txt))||(h[1]=='Allergy'&&(p.d.health||[]).some(x=>x.allergy)),
+ hx=HXLIST.map(h=>`<div><span>${h[0]} /${h[1]}/</span><span class="cl-bx">${on(h)?'&#10003;':''}</span></div>`).join(''),
+ other=[...ck].filter(n=>['Anemia','Asthma','Heart Disease','Organopathy'].includes(n)).join(', '),
+ rows=items.map(x=>`<tr><td style="width:17%;white-space:nowrap">${H(fdate(x.ts))}</td><td><span class="tg">${H(x.tag)}</span>${H(x.txt)}</td></tr>`).join('')+Array(Math.max(0,8-items.length)).fill('<tr><td>&nbsp;</td><td></td></tr>').join('');
+ return CL_CSS+cLetterhead('','')+`<div class="cl-top"><div>${clRow('የካርድ ቁጥር','Card No',p.card)}${clRow('ቀን','Date',fdate(p.date||Date.now()))}${clRow('ስም','Patient\'s Name',p.name)}${clRow('አድራሻ','Address','')}${clRow('ስልክ ቁጥር','Tel. No',p.phone)}${clRow('ዕድሜ / ፆታ','Age / Sex',(p.age||'')+(p.sex?' / '+p.sex:''))}${clRow('','Relative name','')}${clRow('','Relative Tel. No','')}</div>
+  <div class="cl-hx"><div style="justify-content:flex-start"><b>የታካሚው ጤንነት ሁኔታ /Medical History/</b></div>${hx}${other?`<div class="muted" style="font-size:10.5px">Other: ${H(other)}${c.o?' &middot; '+H(c.o):''}</div>`:c.o?`<div style="font-size:10.5px">Other: ${H(c.o)}</div>`:''}</div></div>
+  <table class="cl-t"><tr><th style="width:17%">Date</th><th>Clinical History <span style="font-weight:normal;font-size:10.5px">(Hx &middot; medication &middot; investigations ordered &middot; referral &middot; biopsy)</span></th></tr>${rows}</table>
+  <div class="cl-sec"><b>ፈቃድ / Consent:</b> ${c.t?H(c.t)+'. ':''}የተገለጸልኝን ሕክምና ለማድረግ ፈቃደኛ ነኝ። / I agree to the treatment explained to me.</div>
+  <div class="cl-sig"><div>የታካሚ ፊርማ / Patient signature</div><div>ሐኪም ፊርማ / Doctor signature</div><div>ቀን / Date</div></div>`}
+function clinicalSummaryPrint(id){const p=id!=null?S.patients.find(x=>x.id==id):gp();if(!p)return;printHtml('Clinical summary - '+p.name,clinicalSummaryHtml(p))}
+
+/* ---- medical certificate (paper layout) ---- */
+function medCertHtml(p,x){x=x||{};const lines=(t,n)=>{const a=String(t||'').split('\n').filter(Boolean);return Array.from({length:Math.max(n,a.length)},(_,i)=>`<div class="cl-line">${H(a[i]||'')}</div>`).join('')},
+ dd=toDate(x.date),ret=dd&&+x.days>0?fdate(new Date(dd.getTime()+(+x.days)*864e5)):'';
+ return CL_CSS+cLetterhead('የሀክምና የምስክር ወረቀት','Medical Certificate')+
+  clRow('','Patient\'s Full Name',p&&p.name)+`<div style="display:flex;gap:14px">${clRow('','Sex',p&&p.sex)}${clRow('','Age',p&&p.age)}${clRow('','Address','')}</div>`+
+  `<div class="cl-sec"><b>የታከመበት ቦታ / Examined / Treated on</b></div><div class="cl-line">${H(p?C.name:'')}</div>`+
+  `<div class="cl-sec"><b>የህመማቸው ዓይነት / Diagnosis</b></div>${lines(x.dx,3)}`+
+  `<div class="cl-sec"><b>የሀኪም ትዛዝ / Doctor's Recommendation</b></div>${lines(x.rec,3)}`+
+  clRow('የተፈቀደላቸው ዕረፍት','Rest days granted',x.days?x.days+' day(s)':'')+clRow('ወደ ስራ የሚመለሱበት ቀን','Return to work date',ret)+
+  `<div class="cl-sig" style="margin-top:34px"><div>Dr.'s Signature</div><div>Date${x.date?': '+H(fdate(x.date)):''}</div></div>`+
+  (cInfo().addr?`<div class="cl-foot">${H(cInfo().addr)}</div>`:'')}
+function medCert(i){const p=gp();if(!p)return;const a=p.d.cert||[],x=i=='blank'?null:a[i!=null?i:a.length-1];printHtml('Medical certificate'+(x?' - '+p.name:''),medCertHtml(x?p:null,x||{}))}
 /* ---------- sample data ---------- */
 function seedPatients(start){let sd=11;const R=()=>(sd=sd*16807%2147483647)/2147483647,pk=a=>a[Math.floor(R()*a.length)],t=NOW(),t0=sod(t),base=t,out=[];
  const N=[['Abebe Kebede','Male',34],['Tigist Alemu','Female',28],['Dawit Haile','Male',41],['Selamawit Tesfaye','Female',36],['Mulugeta Bekele','Male',52],['Hanna Girma','Female',19],['Yonas Assefa','Male',25],['Meron Tadesse','Female',31],['Biruk Solomon','Male',9],['Rahel Desta','Female',45],['Kidus Negash','Male',29],['Saron Mekonnen','Female',23],['Fikru Wolde','Male',61],['Liya Abera','Female',15],['Henok Getachew','Male',38],['Bethlehem Yilma','Female',33]];
