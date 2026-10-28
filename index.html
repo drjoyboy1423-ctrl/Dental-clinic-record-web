@@ -215,7 +215,7 @@ async function refresh(){if(RF||!C||!U)return;RF=1;try{await SQ;const cid=C.id,d
 setInterval(()=>{if(U&&C&&!document.hidden&&md.classList.contains('hidden')&&V!='card')refresh()},45000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&U&&C&&md.classList.contains('hidden')&&V!='card')refresh()});
 function setCur(){if(C){lsSet(K.cc,C.id);try{sessionStorage.setItem(K.cc,C.id)}catch(e){}}}
-function hdr(){calBtn();un.textContent=U.name;av.innerHTML=U.avatar?`<img class="w-full h-full object-cover" src="${U.avatar}">`:'';$('clh').innerHTML=logoH(C,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words">${H(C.name)}</div><div class="text-[11px] text-gray-500">${TYPE(C.type)}</div></div>`}
+function hdr(){calBtn();un.textContent=U.name;av.innerHTML=U.avatar?`<img class="w-full h-full object-cover" src="${U.avatar}">`:'';$('clh').innerHTML=logoH(C,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words">${H(C.name)}</div>${U.role=='admin'&&CL.length>1?`<select id="clsw" onchange="swCh(this.value)" class="text-[11px] text-gray-600 bg-transparent border rounded px-1 py-0.5 mt-0.5 max-w-[11rem]" aria-label="View clinic data">${CL.map(c=>`<option value="${H(c.id)}" ${c.id==C.id?'selected':''}>${H(c.name)}</option>`).join('')}</select>`:`<div class="text-[11px] text-gray-500">${TYPE(C.type)}</div>`}</div>`}
 function lcInit(){const sel=lsGet(K.s);lc.innerHTML=CL.map(c=>`<option value="${c.id}" ${c.id==sel?'selected':''}>${H(c.name)} (${c.type=='government'?'Government':'Private'})</option>`).join('');selC()}
 function selC(){const c=CL.find(x=>x.id==lc.value)||CL[0];setTheme(c);$('lb').innerHTML=logoH(c,'w-16 h-16 mx-auto')}
 async function login(){le.classList.add('hidden');const b=$('lbtn');if(b.disabled)return;b.disabled=true;
@@ -250,6 +250,8 @@ async function mkClinic(t){const n={...t,id:'c'+Date.now()};delete n.mu;delete n
 function newClinicLogin(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{const n=await mkClinic(t);lcInit();lc.value=n.id;selC();cl()},1)}
 function addC(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{await mkClinic(t);cl();go('clinics')})}
 function edC(id){const c=CL.find(x=>x.id==id);clinicModal(c,async t=>{const n={...c,...t};await DB.saveClinic(n);Object.assign(c,t);if(c.id==C.id){setTheme(C);hdr()}cl();go('clinics')})}
+/* admin: switch the clinic whose data is shown, staying on the same page */
+async function swCh(id){if(id==C.id)return;try{await SQ}catch(e){}try{const v=V;await loadClinic(id);setCur();hdr();go(['patient','card'].includes(v)?'recent':v)}catch(e){alert(e.message);hdr()}}
 async function swC(id){try{await SQ}catch(e){}try{await loadClinic(id);setCur();hdr();go('dash')}catch(e){alert(e.message)}}
 async function delC(id){const c=CL.find(x=>x.id==id);if(!c||CL.length<2||c.id==C.id)return;if(!confirm('Delete "'+c.name+'" with ALL its patients, records and staff accounts? This cannot be undone.'))return;
  try{await DB.fn('purge_clinic',{clinic:id});await DB.deleteClinic(id);CL=CL.filter(x=>x.id!=id);S.usersLoaded=0;go('clinics')}catch(e){alert(e.message)}}
