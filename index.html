@@ -31,6 +31,16 @@
 .card,.bg-white.rounded-xl,.bg-white.rounded-3xl{box-shadow:0 1px 3px #0000000d,0 1px 2px #0000000a}
 button,.btn{transition:transform .1s,filter .12s}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--c) 35%,#d1d5db);border-radius:6px}
+/* Comprehensive dental record form */
+.rf-s{border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:14px}.rf-s>h3{font-weight:700;font-size:15px;margin-bottom:8px;color:var(--cd,#7f1d1d)}.rf-h{font-weight:700;font-size:13px;margin:12px 0 6px;border-bottom:1px solid #e5e7eb;padding-bottom:2px}
+.rf-x{display:block;margin-bottom:8px}.rf-lb{font-size:12.5px;font-weight:600;color:#374151;margin-bottom:2px}.rf-o{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.rf-chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;background:#f3f4f6;border-radius:999px;padding:3px 10px}.rf-chip input{accent-color:var(--c,#dc2626)}.rf-oth{width:150px;padding:3px 8px;font-size:12px}
+.rf-c{margin:4px 0;padding:4px 8px;border-radius:8px;background:#fafafa}.rf-cb{display:flex;align-items:center;gap:6px;font-size:14px}.rf-sub{margin:6px 0 2px 22px;padding-left:10px;border-left:3px solid #e5e7eb}
+.rf-ln{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.rf-g{border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;margin-bottom:8px}.rf-g>summary{cursor:pointer;font-weight:600;font-size:14px}
+table.rf-t{width:100%;border-collapse:collapse;min-width:520px}table.rf-t th,table.rf-t td{border:1px solid #e5e7eb;padding:3px;font-size:12.5px;text-align:left;vertical-align:top}table.rf-t th{background:#f9fafb;padding:5px}table.rf-t .inp{padding:5px 6px;font-size:13px}
+.rf-ch{display:flex;flex-direction:column;gap:6px}.rf-q{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}.rf-th{border:1px solid #9ca3af;border-radius:6px;background:#fff;height:44px;font-size:12px;line-height:14px;padding:2px 0}.rf-th small{display:block;font-size:10px;font-weight:700;min-height:12px}
+.rf-th.st-H{background:#dcfce7}.rf-th.st-C{background:#fecaca}.rf-th.st-F{background:#bfdbfe}.rf-th.st-Cr{background:#fde68a}.rf-th.st-RCT{background:#ddd6fe}.rf-th.st-I{background:#bbf7d0}.rf-th.st-M{background:#d1d5db}
+.rf-un{display:none;font-size:11px;color:#9ca3af;margin-left:6px}.rf-clr{display:inline;font-size:11px;color:#dc2626;margin-left:8px;cursor:pointer}.rf-dt[data-un="1"] .rf-un{display:inline}.rf-dt[data-un="1"] .rf-clr{display:none}
 </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -155,6 +165,7 @@ const PRO=[['Scaling & Polishing',1500],['Composite Filling',2000],['Extraction'
 const MEDS=['Amoxicillin 500mg','Metronidazole 400mg','Ibuprofen 400mg','Paracetamol 500mg','Diclofenac 50mg','Chlorhexidine Mouthwash','Augmentin 625mg'];
 const CONS=['Allergies','Anemia','Epilepsy','Asthma','Diabetes Mellitus','Hypertension','Heart Disease','Immune Deficiency','Coagulopathy','Organopathy','Pregnancy','Medications Taken','Bleeding Disorder'];
 const VATO=['No VAT','Add 15% VAT'];
+const RXCAT=['','Orthodontic','Endodontic','Prosthodontic','Periodontic','Operative','Oral surgery (dental trauma)','Maxillofacial'];
 const SEC={
 rec:{t:'Dental Record',b:'New Record',e:'No Dental findings available.',f:[['tooth','Tooth No','sel',["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "Full mouth"]],['finding','Diagnosis / Finding','sel',[]],['treat','Treatment','sel',[]],['note','Notes','area']]},
 appt:{t:'Appointments',b:'New Appointment',e:'No appointments available.',f:[['date','Date','date'],['time','Time','time'],['note','Note']]},
@@ -351,14 +362,128 @@ function patient(){const p=gp();if(!p)return recent();const rc=U.role=='receptio
  <div class="space-y-3">${SIDE.filter(s=>!rc||RA.includes(s[0])).map(s=>`<button class="sb ${SK==s[0]?'on':''}" onclick="SK='${s[0]}';go('patient')">${s[1]}</button>`).join('')}</div></div>
  <div class="bg-white rounded-lg shadow p-5 flex-1 w-full min-h-[420px]">${sec(p)}</div></div>`}
 function fin(){const p=gp();p.fin=!p.fin;sv();go('patient')}
+/* ---------- Comprehensive Dental Record: form definition (one source for the screen form, the print and the blank form) ----------
+   Field kinds:  text | area | date | radio | multi | yn (No / Yes + details) | cond (tick box that opens sub-fields) | rows (repeatable table) | chart (FDI tooth chart)
+   An option called "Other" gets its own text box (stored as <key>_other). */
+const rT=(k,l)=>({t:'text',k,l}),rA=(k,l)=>({t:'area',k,l}),rD=(k,l)=>({t:'date',k,l}),rR=(k,l,o)=>({t:'radio',k,l,o}),rM=(k,l,o)=>({t:'multi',k,l,o}),rY=(k,l)=>({t:'yn',k,l}),
+ rC=(k,l,subs)=>({t:'cond',k,l,subs:(subs||[]).map(s=>({...s,k:k+'_'+s.k}))}),rG=(l,fs)=>({t:'grp',l,fs}),rH=l=>({t:'h',l});
+const RF_DEN=['Fillings','RCT','Extraction','Crown/Bridge','Denture','Ortho','Implant'];
+const RF_STAT=['','H','C','F','Cr','RCT','I','M'];
+const RF_LEG='H = Healthy · C = Caries · F = Filled · Cr = Crown · RCT = Root canal · I = Implant · M = Missing';
+const FDI_U=[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28],FDI_L=[48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+
+const RSEC=[
+{id:'s1',n:'1',t:'CHIEF COMPLAINT & GENERAL HISTORY',fs:[
+ rA('complaint','Complaint'),rT('duration','Duration'),rR('severity','Severity',['Mild','Moderate','Severe']),rT('location','Location'),
+ rM('character','Character',['Throbbing','Sharp','Dull','Burning']),rT('aggr','Aggravating'),rT('reliev','Relieving'),
+ rM('assoc','Associated',['Swelling','Fever','Bleeding','Limited opening']),
+ rM('dhx','Dental Hx',['Fillings','RCT','Crowns','Extractions','Ortho','Implants']),rD('lastvisit','Last visit')]},
+{id:'s1a',n:'1A',t:'PREVIOUS TREATMENTS / SURGERIES (Dental & Medical)',fs:[
+ rM('prev','Previous treatments / surgeries',['None','Previous dental treatment','Previous dental surgery','Previous medical surgery','Previous hospitalization','Previous general anesthesia','Previous blood transfusion','Previous implant surgery','Previous orthodontic treatment','Previous orthognathic surgery','Previous periodontal surgery','Previous oral/maxillofacial surgery','Previous trauma surgery','Previous biopsy','Other']),
+ rM('prevd','Previous Dental Treatments/Surgeries',[...RF_DEN,'Periodontal surgery','Oral surgery','Orthognathic surgery','Trauma surgery','Biopsy','Other']),
+ rM('prevm','Previous Medical Surgeries/Procedures',['Appendectomy','Tonsillectomy','Cardiac surgery','Joint replacement','Transplant','Cesarean section','Other']),
+ rY('anes','Anesthesia complications'),rY('transf','Blood transfusion history'),rY('postop','Post-operative complications'),
+ {t:'rows',k:'prevrows',l:'Previous Treatment/Surgery Details',n:3,cols:[['year','Year','text'],['proc','Type/Procedure','text'],['place','Hospital/Clinic','text'],['by','Surgeon/Physician','text'],['out','Outcome/Complications','text']]}]},
+{id:'s2',n:'2',t:'MEDICAL & INFECTIOUS DISEASE HISTORY (Expanded)',fs:[
+ rH('2.1 Chronic Diseases & Conditions'),
+ rC('none1','None'),
+ rC('diab','Diabetes',[rR('type','Type',['Type 1','Type 2']),rR('ctl','Control',['Good','Fair','Poor']),rT('a1c','HbA1c %'),rM('meds','Meds',['Insulin','OHA','Diet']),rR('hypo','Hypoglycemia Hx',['Yes','No'])]),
+ rC('htn','Hypertension',[rT('bp','BP (e.g. 130/85)'),rR('ctl','Controlled',['Yes','No']),rT('meds','Meds')]),
+ rC('cvs','Cardiovascular',[rM('o','',['Angina','MI','Heart failure','Arrhythmia','Valve disease','Pacemaker/ICD','Stroke','Rheumatic fever','Prosthetic joint','Previous infective endocarditis','Congenital heart disease'])]),
+ rC('antico','Anticoagulant/antiplatelet',[rM('o','',['Warfarin','DOAC','Aspirin','Clopidogrel']),rT('inr','INR')]),
+ rC('resp','Respiratory',[rM('o','',['Asthma','COPD','Emphysema','Bronchitis','Sleep apnea','Past TB'])]),
+ rC('renal','Renal',[rM('o','',['CKD','Dialysis','Transplant']),rT('ckd','CKD stage')]),
+ rC('liver','Liver',[rM('o','',['Hepatitis','Cirrhosis','Alcohol use'])]),
+ rC('gi','Gastrointestinal',[rM('o','',['GERD','IBD','Peptic ulcer','Other'])]),
+ rC('endo','Endocrine',[rM('o','',['Thyroid','Other'])]),
+ rC('neuro','Neurological',[rM('o','',['Epilepsy','Seizures','Parkinson’s','MS','Other'])]),
+ rC('psych','Psychiatric',[rM('o','',['Anxiety','Depression','Other'])]),
+ rC('bleed','Bleeding disorder',[rT('d','Details')]),
+ rC('immuno','Immunosuppression',[rM('o','',['Chemo','Steroids','HIV','Transplant','Biologics'])]),
+ rC('autoimm','Autoimmune disease',[rT('d','Details')]),
+ rC('cancer','Cancer/radiotherapy',[rT('site','Site'),rT('date','Date')]),
+ rC('antires','Antiresorptive',[rM('o','',['Bisphosphonate','Denosumab']),rR('route','Route',['IV','Oral']),rT('dur','Duration')]),
+ rC('preg','Pregnancy',[rT('wk','Weeks'),rM('o','',['Lactation'])]),
+ rC('subst','Substance use',[rM('o','',['Smoking','Alcohol','Drugs']),rT('day','Smoking per day')]),
+ rC('ochr','Other chronic disease',[rT('d','Details')]),
+ rH('2.2 Infectious Disease Screening'),
+ rC('none2','None known'),
+ rC('hbv','HBV',[rM('o','',['Active','Carrier','Vaccinated','Unknown'])]),
+ rC('hcv','HCV',[rM('o','',['Active','Treated','Unknown'])]),
+ rC('hiv','HIV',[rM('o','',['Positive','Unknown'])]),
+ rC('tb','TB',[rM('o','',['Active','Past','Contact','Unknown'])]),
+ rC('fever','Recent fever/infection',[rT('d','Details')]),
+ rC('herpes','Herpes/cold sore',[rM('o','',['Active'])]),
+ rC('sti','Syphilis/other STI',[rT('d','Details')]),
+ rC('mrsa','MRSA/contact infection',[rT('d','Details')]),
+ rC('covid','Recent respiratory infection/COVID',[rT('d','Details')]),
+ rC('oinf','Other infectious disease',[rT('d','Details')]),
+ rH('2.3 Allergies'),
+ rC('none3','None'),
+ rM('allergy','Allergic to',['Penicillin','NSAID','Latex','Local anesthetic','Other']),rA('allergyd','Details'),
+ rH('2.4 Current Medications'),
+ rA('meds','Current medications'),rT('phys','Physician/contact'),rT('physph','Phone'),rD('lastrev','Last medical review'),
+ rH('2.5 Vital Signs'),
+ {t:'line',fs:[rT('v_bp','BP'),rT('v_pulse','Pulse'),rT('v_rr','Respiratory rate'),rT('v_temp','Temperature'),rT('v_spo2','SpO₂ %'),rT('v_asa','ASA')]},
+ rH('2.6 Medical Alerts & Precautions'),
+ rC('alert','MEDICAL ALERT',[rT('d','Specify')]),
+ rM('prec','Precautions (tick all that apply)',['BP check','Glucose check','Antibiotic prophylaxis','Consult physician','Avoid epinephrine','INR/DOAC check','Dialysis timing','Pregnancy positioning','Airborne precautions','Contact precautions','Post-exposure protocol','Local hemostatic measures','Short appointment','Morning appointment','Avoid nephrotoxic drugs','Other']),
+ rT('precind','Antibiotic prophylaxis indication')]},
+{id:'s3',n:'3',t:'GENERAL EXAMINATION',fs:[
+ rM('extra','Extraoral',['Normal','Swelling','Lymphadenopathy','TMJ']),rM('intra','Intraoral soft tissue',['Normal','Ulcer','Redness','Swelling']),
+ rM('occl','Occlusion',['Normal','Class I','Class II','Class III']),rA('assess','Assessment')]},
+{id:'s4',n:'4',t:'SPECIALTY HISTORY & FINDINGS (Hx + Findings + Classification)',fs:[
+ rG('4.1 Orthodontic',[rM('o_h','Hx',['Previous ortho','Thumb/digit habit','Mouth breathing','Tongue thrust','Chewing difficulty']),rM('o_f','Findings',['Crowding','Spacing','Overjet','Overbite','Crossbite','Open bite','Deep bite','Midline deviation']),rT('o_oj','Overjet (mm)'),rT('o_ob','Overbite (mm)'),rR('o_angle','Angle’s Class',['I','II div 1','II div 2','III'])]),
+ rG('4.2 Periodontic',[rM('p_h','Hx',['Bleeding gums','Previous perio tx','Diabetes','Smoking','Bad breath']),rM('p_f','Findings',['Plaque','Calculus','Gingivitis','Periodontitis']),rT('p_pd','PD (mm)'),rR('p_rec','Recession',['Yes','No']),rT('p_mob','Mobility'),rR('p_fur','Furcation',['I','II','III']),rR('p_gin','Gingiva',['Healthy','Inflamed','Hyperplastic']),rR('p_stage','2017 Classification Stage',['I','II','III','IV']),rR('p_ext','Extent',['Localized (<30%)','Generalized (>30%)','Molar-incisor pattern'])]),
+ rG('4.3 Maxillofacial',[rM('m_h','Hx',['Trauma','Surgery','TMJ pain/click','Swelling','Asymmetry','Limited opening']),rM('m_f','Findings',['Facial symmetry','TMJ tenderness','Click/pop','Lymphadenopathy','Swelling','Deviation on opening']),rT('m_open','Opening (mm)'),rM('m_lf','Le Fort Classification',['Le Fort I','Le Fort II','Le Fort III','ZMC fracture','Mandibular fracture'])]),
+ rG('4.4 Dental Trauma',[rM('t_h','Hx',['Fall','Sports injury','RTA','Assault','Biting hard object','Previous trauma']),rM('t_f','Findings',['Fracture','Luxation','Intrusion','Extrusion','Avulsion','Subluxation','Mobile tooth','Discoloration','Pulp exposure','Root fracture','Alveolar fracture','Soft tissue injury']),rR('t_ellis','Ellis Classification',['Class I (enamel)','Class II (enamel+dentin)','Class III (pulp)','Class IV (root)','Class V (avulsion)','Class VI (root fracture)']),rM('t_and','Andreasen Classification',['Enamel infraction','Enamel fracture','Crown fracture (uncomplicated)','Crown fracture (complicated)','Crown-root fracture','Root fracture','Concussion','Subluxation','Extrusive luxation','Lateral luxation','Intrusive luxation','Avulsion'])]),
+ rG('4.5 Endodontic',[rM('e_h','Hx',['Previous RCT','Sensitivity to hot/cold','Spontaneous pain','Swelling','Sinus tract']),rM('e_f','Findings',['Caries','Non-vital','Percussion tenderness','Palpation tenderness','Sinus tract','Periapical radiolucency','Fracture','Resorption'])]),
+ rG('4.6 Restorative / Caries',[rM('r_h','Hx',['Previous fillings','Fractured restoration','Food impaction','Sensitivity']),rM('r_f','Findings',['Caries','Defective restoration','Marginal leakage','Fractured cusp','Wear/faceting','Discoloration','Missing tooth structure']),rR('r_black','Caries Classification (G.V. Black)',['Class I','Class II','Class III','Class IV','Class V','Class VI']),rR('r_icdas','ICDAS',['0','1','2','3','4','5','6']),rR('r_depth','Depth',['Enamel','Dentin','Pulp'])]),
+ rG('4.7 Prosthodontic',[rM('x_h','Hx',['Previous crowns/bridges','Dentures','Removable partial','Implant prosthesis']),rM('x_f','Findings',['Missing teeth','Edentulous space','Defective crown/bridge','Denture fit issue','Occlusal imbalance','Abutment condition'])]),
+ rG('4.8 Pediatric Dentistry',[rM('d_h','Hx',['First dental visit','Bottle/nursing','Thumb sucking','Trauma','Fluoride use']),rM('d_f','Findings',['ECC','Crowding','Delayed eruption','Space maintainer needed','Behavior management needed'])]),
+ rG('4.9 Oral Medicine / Oral Pathology',[rM('a_h','Hx',['Ulcers','Dry mouth','Burning mouth','Lesions','Biopsy','Systemic disease']),rM('a_f','Findings',['Ulcer','White patch','Red patch','Swelling','Pigmentation','Mucosal lesion','Salivary gland issue','Halitosis'])]),
+ rG('4.10 Oral Surgery',[rM('s_h','Hx',['Extraction','Impaction','Trauma','Surgery','Bleeding disorder','Anticoagulants']),rM('s_f','Findings',['Impacted tooth','Mobile tooth','Swelling','Infection','Limited opening','Trismus','Fracture']),rR('s_win','Impaction Classification (Winter’s)',['Mesioangular','Distoangular','Vertical','Horizontal'])]),
+ rG('4.11 Implantology',[rM('i_h','Hx',['Previous implants','Bone graft','Sinus lift','Failed implant']),rM('i_f','Findings',['Missing tooth space','Bone volume','Soft tissue condition','Implant stability','Peri-implantitis','Prosthesis condition']),rT('i_bone','Bone volume'),rT('i_stab','Implant stability')])]},
+{id:'s5',n:'5',t:'DENTAL CHART (FDI)',fs:[
+ {t:'chart',k:'chart'},rA('invest','Investigation (X-ray, lab, vitality test... ordered / results)'),
+ {t:'rows',k:'crows',l:'Tooth findings',n:3,cols:[['tooth','Tooth','text'],['finding','Finding','text'],['notes','Notes','text']]}]},
+{id:'s6',n:'6',t:'DIAGNOSIS',fs:[rT('dx1','Primary'),rT('dx2','Secondary'),rT('dx3','Specialty diagnosis')]},
+{id:'s7',n:'7',t:'TREATMENT PLAN',fs:[
+ {t:'rows',k:'plan',l:'Treatment plan',n:3,num:true,cols:[['tooth','Tooth/Area','text'],['cat','Case type','sel',RXCAT],['proc','Procedure','text','proc'],['status','Status','sel',['Planned','Done']],['fee','Fee','number']]},
+ rT('anesth','Anesthesia'),rT('today','Treatment today'),rR('postop_i','Post-op instructions',['Given','Not given'])]},
+{id:'s8',n:'8',t:'FOLLOW-UP',fs:[rD('next','Next appointment'),rR('recall','Recall',['3 mo','6 mo','12 mo','PRN']),rA('fu','Notes')]}
+];
+
+/* Section 10: clinical action guide. test() decides whether the row applies to the patient (highlighted + shown as an alert). */
+const hasO=(f,k,v)=>!!f[k]&&(f[k+'_o']||[]).includes(v);
+const RGUIDE=[
+['Diabetes','Morning appointment, patient must eat, check glucose if needed, short appointments, monitor for hypoglycemia, infection/delayed healing risk.',f=>f.diab],
+['Hypertension','Check BP. If very high — e.g. >180/110 mmHg — postpone elective care and refer/consult. Use stress reduction.',f=>f.htn||rfBpHigh(f)],
+['Cardiovascular disease','Antibiotic prophylaxis only if clearly indicated — prosthetic valve, previous infective endocarditis, certain congenital heart disease, cardiac transplant valvulopathy. Not routine for joint prostheses.',f=>f.cvs],
+['Anticoagulants/antiplatelets','Do not stop without physician. Check INR for warfarin; consult for DOAC. Use local hemostatic measures.',f=>f.antico],
+['Asthma/COPD','Keep inhaler available, upright position, avoid triggers/aerosol if severe.',f=>f.resp&&((f.resp_o||[]).some(x=>/asthma|copd|emphysema|bronchitis/i.test(x))||!(f.resp_o||[]).length)],
+['Active TB','Defer elective dental care; refer. If urgent: airborne precautions, N95, negative-pressure room.',f=>hasO(f,'tb','Active')],
+['HBV/HCV/HIV','Standard precautions for all patients. Confidentiality. Staff HBV vaccination. Post-exposure prophylaxis protocol.',f=>f.hbv||f.hcv||f.hiv||hasO(f,'immuno','HIV')],
+['Renal disease/dialysis','Avoid nephrotoxic drugs; adjust drug doses; coordinate timing with dialysis; bleeding risk.',f=>f.renal],
+['Liver disease','Bleeding risk and altered drug metabolism; hepatitis precautions.',f=>f.liver],
+['Bleeding disorder','Check INR/platelets; consult hematologist; local hemostatic measures.',f=>f.bleed],
+['Immunosuppression','High infection risk; avoid elective care during active infection; no routine antibiotics without indication.',f=>f.immuno],
+['Bisphosphonate/denosumab','Risk of MRONJ. Avoid unnecessary extractions; consent; consult physician if high risk.',f=>f.antires],
+['Pregnancy','Elective care ideally second trimester; left lateral position; emergency care at any time; drug caution.',f=>f.preg],
+['Active herpes/cold sore','Avoid elective treatment near active lesion; avoid contact; postpone if possible.',f=>hasO(f,'herpes','Active')],
+['Infectious disease generally','Use standard precautions for every patient. Add airborne/contact precautions only when indicated.',f=>f.hbv||f.hcv||f.hiv||f.tb||f.fever||f.sti||f.mrsa||f.covid||f.oinf]];
+const RGUIDE_RULE='Key rule: Antibiotics are not routine for caries, periodontitis, or most dental pain. Use only when there is a clear indication or medical consultation.';
+function rfBpHigh(f){const m=String(f.v_bp||'').match(/(\d{2,3})\s*[\/\\]\s*(\d{2,3})/);return !!m&&(+m[1]>=180||+m[2]>=110)}
+const rfAlerts=f=>RGUIDE.filter(g=>{try{return g[2](f||{})}catch(e){return false}});
 function sec(p){const k=SK,c=SEC[k],a=p.d[k]||[];
  if(k=='presc')return presc(p);if(k=='consent')return consent(p);
+ if(k=='rec'&&REC&&REC.pid==p.id)return rfEditor(p);
  const sub=k=='inv'?`<p class="text-center text-gray-500 -mt-3 mb-3">${H(p.name)}</p>`:'';
  const sm=k=='inv'&&a.length?(()=>{const T=a.reduce((z,x)=>z+tot(x),0),P=a.reduce((z,x)=>z+(+x.paid||0),0);return `<div class="grid grid-cols-3 gap-2 text-center text-xs mb-4"><div class="bg-red-50 rounded p-2">Billed<br><b class="text-sm">${ETB(T)}</b></div><div class="bg-green-50 rounded p-2">Paid<br><b class="text-sm">${ETB(P)}</b></div><div class="bg-red-50 rounded p-2">Balance<br><b class="text-sm">${ETB(T-P)}</b></div></div>`})():'';
- const extra=k=='cert'?`<button onclick="medCert()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print certificate</button><button onclick="medCert('blank')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">Blank</button>`:k=='rec'?gb('view Dental chart','chart()')+`<button onclick="recSummaryPrint()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print summary</button>`:'';
- return hd(c.t,extra+gb(c.b+' +',`addI('${k}')`))+sub+sm+(a.length?(k=='img'?gal(a):a.map((x,i)=>iCard(k,x,i)).join('')):`<p class="text-gray-500">${c.e}</p>`)}
+ const extra=k=='cert'?`<button onclick="medCert()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print certificate</button><button onclick="medCert('blank')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">Blank</button>`:k=='rec'?gb('view Dental chart','chart()')+`<button onclick="recSummaryPrint()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print summary</button><button onclick="recBlankPrint()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">Blank form</button>`:'';
+ return hd(c.t,extra+gb(c.b+' +',k=='rec'?'recNew()':`addI('${k}')`))+sub+sm+(a.length?(k=='img'?gal(a):a.map((x,i)=>iCard(k,x,i)).join('')):`<p class="text-gray-500">${c.e}</p>`)}
 const net=x=>(+x.price||0)*(+x.qty||1)-(+x.disc||0),vatAmt=x=>x.vat==VATO[1]?Math.round(net(x)*15)/100:0,tot=x=>net(x)+vatAmt(x);
-function iCard(k,x,i){const c=SEC[k],ic=(cl,t,a)=>`<i class="fa ${t} ${cl} cursor-pointer" onclick="${a}"></i>`,del=ic('text-rose-600','fa-trash',`delI('${k}',${i})`),ed=ic('text-red-600','fa-pen',`editI('${k}',${i})`);
+function iCard(k,x,i){if(k=='rec')return recCard(x,i);const c=SEC[k],ic=(cl,t,a)=>`<i class="fa ${t} ${cl} cursor-pointer" onclick="${a}"></i>`,del=ic('text-rose-600','fa-trash',`delI('${k}',${i})`),ed=ic('text-red-600','fa-pen',`editI('${k}',${i})`);
  if(k=='inv'||k=='prof'){const t=tot(x),paid=+x.paid||0,bal=t-paid,inv=k=='inv',stt=bal<=0?['Paid','bg-green-100 text-green-700']:paid>0?['Partial','bg-sky-100 text-sky-700']:['Pending','bg-yellow-100 text-yellow-700'];
   return `<div class="bg-gray-50 rounded-lg shadow p-4 mb-3 text-sm"><div class="flex justify-between items-start"><div><b>${inv?'Invoice '+H(invNo(gp(),x,i)):'Proforma'} &middot; Date:</b> ${H(dsp(x))}</div><div class="space-x-3">${ic('text-purple-600','fa-print',`pr('${k}',${i})`)}${inv?ic('text-green-600','fa-money-bill',`pay(${i})`):ic('text-green-600','fa-file-invoice',`toInv(${i})`)}${ed}${del}</div></div>
   <div class="grid grid-cols-2 gap-2 mt-3"><div><b>Total:</b> ${ETB(t)}</div>${inv?`<div><b>Paid:</b> ${ETB(paid)}</div><div><b>Balance:</b> ${ETB(bal)}</div><div><b>Status:</b> <span class="px-2 rounded ${stt[1]}">${stt[0]}</span></div>`:''}<div><b>Created By:</b> ${H(x.by||U.name)}</div><div><b>Discount:</b> ${ETB(x.disc)}</div>${vatAmt(x)?`<div><b>VAT 15%:</b> ${ETB(vatAmt(x))}</div>`:''}</div>
@@ -386,6 +511,128 @@ function pick(){const it=$('f_item');if(it)it.onchange=()=>{const q=S.proc.find(
 const NUMK=['price','qty','disc','paid','amt'];
 function chk(k,v,old){for(const n of NUMK)if(v[n]!==undefined&&v[n]!==''&&!(+v[n]>=0))return 'Please enter a valid, non-negative number.';
  if(k=='inv'||k=='prof'){if(v.qty!==''&&+v.qty<=0)return 'Quantity must be at least 1.';if(+v.disc>(+v.price||0)*(+v.qty||1)+.005)return 'Discount cannot exceed the item total.';if(k=='inv'&&(+v.paid||0)>tot(v)+.005)return 'Amount paid cannot exceed the invoice total.';if(k=='inv'&&(+v.paid||0)>0&&(old===undefined||(+v.paid||0)!=old)&&v.method&&v.method!='Cash'&&!v.ref)return 'Enter the '+v.method+' transaction / reference number.'}return ''}
+/* ---------- Comprehensive Dental Record: on-screen form (add / edit), record cards, dental chart ---------- */
+let REC=null,RFCH={};
+const rfOf=(fs,out)=>{out=out||[];(fs||[]).forEach(f=>{out.push(f);if(f.fs)rfOf(f.fs,out);if(f.subs)rfOf(f.subs,out)});return out};
+const rfAll=()=>RSEC.flatMap(s=>rfOf(s.fs));
+const rfEmpty=v=>v==null||v===''||v===false||(Array.isArray(v)&&!v.length);
+function rfLegacy(r){const f={};if(r.cc)f.complaint=r.cc;if(r.assess)f.assess=r.assess;if(r.invest)f.invest=r.invest;if(r.finding)f.dx1=r.finding;if(r.note)f.fu=r.note;
+ const rows={};if(r.treat||r.done||r.tooth)rows.plan=[{tooth:r.tooth||'',cat:r.plancat||'',proc:r.done||r.treat||'',status:r.done?'Done':'Planned'}];return {f,rows,chart:{}}}
+function recNew(pre){const p=gp();if(!p)return;REC={pid:p.id,i:-1,v:{f:{},rows:pre?{crows:[{tooth:String(pre)}]}:{},chart:{}}};SK='rec';go('patient')}
+function recEdit(i){const p=gp(),r=p.d.rec[i];if(!r)return;REC={pid:p.id,i,v:r.f?{f:r.f,rows:r.rows||{},chart:r.chart||{}}:rfLegacy(r)};SK='rec';go('patient')}
+function recCancel(){REC=null;go('patient')}
+
+/* ---- controls ---- */
+const rfChip=(k,o,on,type,name)=>`<label class="rf-chip"><input type="${type}" ${name?`name="${name}"`:''} data-k="${k}" data-v="${H(o)}" ${on?'checked':''} ${type=='radio'?`${on?'data-w="1" ':''}onclick="rfRad(this)"`:''}> ${H(o)}</label>`;
+function rfRad(e){if(e.dataset.w=='1'){e.checked=false;e.dataset.w=''}else{document.getElementsByName(e.name).forEach(x=>x.dataset.w='');e.dataset.w='1'}}
+function rfCond(e){const s=e.closest('.rf-c').querySelector('.rf-sub');if(s)s.style.display=e.checked?'':'none'}
+function rfField(f,v){const F=v.f,k=f.k,val=F[k],lab=f.l?`<div class="rf-lb">${H(f.l)}</div>`:'';
+ switch(f.t){
+ case 'h':return `<h4 class="rf-h">${H(f.l)}</h4>`;
+ case 'text':return `<label class="rf-x">${lab}<input data-k="${k}" class="inp" value="${H(val||'')}"></label>`;
+ case 'area':return `<label class="rf-x">${lab}<textarea data-k="${k}" rows="2" class="inp">${H(val||'')}</textarea></label>`;
+ case 'date':return `<div class="rf-x rf-dt" data-un="${val?'':'1'}" onchange="this.dataset.un=''">${lab}<span class="rf-un">not set - choose a date to set it</span><a class="rf-clr" onclick="this.closest('.rf-dt').dataset.un='1'">clear date</a>${dateField('rf_'+k,val)}</div>`;
+ case 'radio':return `<div class="rf-x">${lab}<div class="rf-o">${f.o.map(o=>rfChip(k,o,val==o,'radio','rr_'+k)).join('')}</div></div>`;
+ case 'multi':return `<div class="rf-x">${lab}<div class="rf-o">${f.o.map(o=>o=='Other'?`<span class="rf-chip">${rfChipIn(k,o,(val||[]).includes(o))} <input data-k="${k}_other" class="inp rf-oth" placeholder="Other..." value="${H(F[k+'_other']||'')}"></span>`:rfChip(k,o,(val||[]).includes(o),'checkbox')).join('')}</div></div>`;
+ case 'yn':return `<div class="rf-x">${lab}<div class="rf-o">${['No','Yes'].map(o=>rfChip(k,o,val==o,'radio','rr_'+k)).join('')}<input data-k="${k}_s" class="inp rf-oth" placeholder="If yes, specify" value="${H(F[k+'_s']||'')}"></div></div>`;
+ case 'cond':return `<div class="rf-c"><label class="rf-cb"><input type="checkbox" data-k="${k}" ${val?'checked':''} onchange="rfCond(this)"> <b>${H(f.l)}</b></label>${f.subs.length?`<div class="rf-sub" style="${val?'':'display:none'}">${f.subs.map(s=>rfField(s,v)).join('')}</div>`:''}</div>`;
+ case 'line':return `<div class="rf-ln">${f.fs.map(s=>rfField(s,v)).join('')}</div>`;
+ case 'grp':{const open=rfOf(f.fs).some(x=>x.k&&!rfEmpty(F[x.k]));return `<details class="rf-g" ${open?'open':''}><summary>${H(f.l)}</summary>${f.fs.map(s=>rfField(s,v)).join('')}</details>`}
+ case 'rows':return rfRows(f,v);
+ case 'chart':return rfChartHtml(v)}
+ return ''}
+const rfChipIn=(k,o,on)=>`<input type="checkbox" data-k="${k}" data-v="${H(o)}" ${on?'checked':''}> ${H(o)}`;
+function rfCell(f,c,x){const [ck,,ty,op]=c,val=x[ck]==null?'':x[ck];
+ if(ty=='sel')return `<select data-c="${ck}" class="inp">${op.map(o=>`<option ${val==o?'selected':''}>${H(o)}</option>`).join('')}</select>`;
+ return `<input data-c="${ck}" ${ty=='number'?'type="number" min="0" step="any" inputmode="decimal"':''} ${ty=='text'&&op?`list="rf_dl_${op}" onchange="rfProc(this)"`:''} class="inp" value="${H(val)}">`}
+function rfRow(f,x){return `<tr>${f.cols.map(c=>`<td>${rfCell(f,c,x)}</td>`).join('')}<td><i class="fa fa-xmark text-rose-600 cursor-pointer" onclick="this.closest('tr').remove();rfUpd()"></i></td></tr>`}
+function rfRows(f,v){const a=(v.rows[f.k]&&v.rows[f.k].length?v.rows[f.k]:Array.from({length:f.n},()=>({})));
+ return `<div class="rf-x"><div class="rf-lb">${H(f.l)}</div><div class="overflow-x-auto"><table class="rf-t"><thead><tr>${f.cols.map(c=>`<th>${H(c[1])}</th>`).join('')}<th></th></tr></thead><tbody data-rows="${f.k}">${a.map(x=>rfRow(f,x)).join('')}</tbody></table></div><button type="button" class="text-sm text-red-600 mt-1" onclick="rfAddRow('${f.k}')">+ Add row</button></div>`}
+function rfAddRow(k){const f=rfAll().find(x=>x.k==k),b=document.querySelector(`tbody[data-rows="${k}"]`);b.insertAdjacentHTML('beforeend',rfRow(f,{}))}
+function rfProc(e){const q=S.proc.find(x=>x.n==e.value),tr=e.closest('tr'),fee=tr&&tr.querySelector('[data-c="fee"]');if(q&&fee&&!fee.value)fee.value=q.p;rfUpd()}
+function rfChartHtml(v){RFCH={...(v.chart||{})};const b=n=>`<button type="button" class="rf-th" data-t="${n}" onclick="rfTooth(this)">${n}<small></small></button>`;
+ const h=`<div class="rf-x"><div class="rf-lb">Dental chart (FDI) - tap a tooth to cycle its status</div><div class="rf-ch"><div class="rf-q">${FDI_U.slice(0,8).map(b).join('')}</div><div class="rf-q">${FDI_U.slice(8).map(b).join('')}</div><div class="rf-q">${FDI_L.slice(0,8).map(b).join('')}</div><div class="rf-q">${FDI_L.slice(8).map(b).join('')}</div></div><div class="text-xs text-gray-500 mt-1">UR | UL (top) &middot; LR | LL (bottom). ${RF_LEG}. Tap again to cycle, last tap clears.</div></div>`;
+ setTimeout(rfPaint,0);return h}
+function rfPaint(){document.querySelectorAll('.rf-th').forEach(e=>{const s=RFCH[e.dataset.t]||'';e.className='rf-th'+(s?' st-'+s:'');e.querySelector('small').textContent=s})}
+function rfTooth(e){const t=e.dataset.t,i=RF_STAT.indexOf(RFCH[t]||''),n=RF_STAT[(i+1)%RF_STAT.length];if(n)RFCH[t]=n;else delete RFCH[t];rfPaint();rfUpd()}
+
+/* ---- collect / derive / save ---- */
+function rfCollect(){const root=$('rfroot'),f={},rows={};
+ root.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k;if(e.type=='checkbox'){if(e.dataset.v!==undefined){if(e.checked)(f[k]=f[k]||[]).push(e.dataset.v)}else if(e.checked)f[k]=true}else if(e.type=='radio'){if(e.checked)f[k]=e.dataset.v}else{const t=e.value.trim();if(t)f[k]=t}});
+ rfAll().filter(x=>x.t=='date').forEach(x=>{const e=$('rf_'+x.k),w=e&&e.closest('.rf-dt');if(e&&e.value&&w&&w.dataset.un!='1'&&!(e.closest('.rf-sub')&&e.closest('.rf-sub').style.display=='none'))f[x.k]=e.value});
+ root.querySelectorAll('tbody[data-rows]').forEach(b=>{const a=[];b.querySelectorAll('tr').forEach(tr=>{const o={};tr.querySelectorAll('[data-c]').forEach(e=>{const t=e.value.trim();if(t)o[e.dataset.c]=t});const ks=Object.keys(o).filter(k=>!(k=='status'&&o[k]=='Planned'&&Object.keys(o).length==1));if(ks.length)a.push(o)});if(a.length)rows[b.dataset.rows]=a});
+ // drop sub-field values of conditions that are not ticked
+ rfAll().filter(x=>x.t=='cond').forEach(c=>{if(!f[c.k])c.subs.forEach(s=>{delete f[s.k];delete f[s.k+'_other']})});
+ return {f,rows,chart:{...RFCH}}}
+const FDI_RE=/\b[1-8][1-8]\b/g;
+function rfDerive(c){const f=c.f,pl=c.rows.plan||[],teeth=new Set(Object.keys(c.chart).filter(t=>c.chart[t]&&c.chart[t]!='H'));
+ [...(c.rows.crows||[]).map(x=>x.tooth),...pl.map(x=>x.tooth)].forEach(t=>(String(t||'').match(FDI_RE)||[]).forEach(n=>teeth.add(n)));
+ const T=[...teeth].sort((a,b)=>a-b),pn=x=>x.proc||'';
+ return {cc:f.complaint||'',assess:f.assess||'',invest:f.invest||'',finding:f.dx1||'',plancat:(pl.find(x=>x.cat)||{}).cat||'',treat:pl.filter(x=>x.status!='Done').map(pn).filter(Boolean).join(', '),done:pl.filter(x=>x.status=='Done').map(pn).filter(Boolean).join(', '),note:f.fu||'',teeth:T,tooth:T[0]||''}}
+function rfSave(){const c=rfCollect();if(!Object.keys(c.f).length&&!Object.keys(c.rows).length&&!Object.keys(c.chart).length)return bad('Please fill in at least one part of the record.');
+ const p=gp(),d=rfDerive(c),a=p.d.rec=p.d.rec||[];
+ if(REC.i<0){const t=Date.now();a.push({...c,...d,no:a.reduce((m,x)=>Math.max(m,+x.no||0),a.length)+1,date:isoD(t),ts:t,by:U.name})}else Object.assign(a[REC.i],c,d);
+ REC=null;sv();go('patient')}
+function rfUpd(){const e=$('rfal');if(!e||!$('rfroot'))return;const c=rfCollect(),al=rfAlerts(c.f);e.innerHTML=al.length?`<b class="text-red-700"><i class="fa fa-triangle-exclamation"></i> Clinical alerts for this patient</b>${al.map(g=>`<div class="mt-1"><b>${H(g[0])}:</b> ${H(g[1])}</div>`).join('')}<div class="mt-1 text-xs italic">${H(RGUIDE_RULE)}</div>`:''}
+
+/* ---- editor page ---- */
+function rfEditor(p){const v=REC.v,nm=REC.i<0?'New Dental Record':'Edit Dental Record';
+ const btns=`<div class="flex gap-2"><button class="px-4 py-2 rounded bg-gray-200" onclick="recCancel()">Cancel</button><button class="px-4 py-2 rounded bg-red-600 text-white" onclick="rfSave()">Save record</button></div>`;
+ setTimeout(rfUpd,0);
+ return `<datalist id="rf_dl_proc">${S.proc.map(x=>`<option value="${H(x.n)}">`).join('')}</datalist><datalist id="rf_dl_dx">${S.dis.map(x=>`<option value="${H(x.name)}">`).join('')}</datalist>
+ <div class="flex justify-between items-center gap-2 mb-1"><h2 class="text-xl font-bold">COMPREHENSIVE DENTAL RECORD</h2>${btns}</div><p class="text-sm text-gray-500 mb-3">${nm} &middot; ${H(p.name)} &middot; Card ${H(p.card)} &middot; Dentist: ${H(U.name)}</p>
+ <div id="rfal" class="bg-red-50 border border-red-200 rounded p-3 text-sm mb-3 empty:hidden"></div>
+ <div id="rfroot" oninput="rfUpd()" onchange="rfUpd()">${RSEC.map(s=>`<section class="rf-s"><h3>${s.n}. ${H(s.t)}</h3>${s.fs.map(f=>rfField(f,v)).join('')}</section>`).join('').replace(/data-k="(dx1|dx2|dx3)" class="inp"/g,'data-k="$1" list="rf_dl_dx" class="inp"')}
+ <section class="rf-s"><h3>9. SIGNATURES</h3><p class="text-sm text-gray-500">Patient / Guardian and Dentist signature lines are printed at the end of the printed record.</p></section>
+ <section class="rf-s"><h3>10. CLINICAL ACTION GUIDE FOR CHRONIC &amp; INFECTIOUS DISEASES</h3><div class="overflow-x-auto"><table class="rf-t"><thead><tr><th>Condition</th><th>Important dental action</th></tr></thead><tbody>${RGUIDE.map(g=>`<tr><td><b>${H(g[0])}</b></td><td>${H(g[1])}</td></tr>`).join('')}</tbody></table></div><p class="text-sm font-medium mt-2">${H(RGUIDE_RULE)}</p></section></div>
+ <div class="flex justify-end mt-4">${btns}</div>`}
+
+/* ---- record card in the list ---- */
+function recCard(x,i){const ic=(cl,t,a)=>`<i class="fa ${t} ${cl} cursor-pointer" onclick="${a}"></i>`,al=rfAlerts(x.f||{}),T=(x.teeth&&x.teeth.length?x.teeth:x.tooth?[x.tooth]:[]).join(', '),row=(l,v)=>v?`<div><b>${l}:</b> ${H(v)}</div>`:'',plan=[x.plancat,x.treat].filter(Boolean).join(': ');
+ return `<div class="bg-gray-50 rounded-lg shadow p-4 mb-3 text-sm"><div class="flex justify-between items-start gap-3"><div class="font-bold">Record ${H(x.no||i+1)} <span class="font-normal text-gray-500">&middot; ${H(dsp(x))} &middot; ${H(x.by||'')}</span></div><div class="space-x-3 whitespace-nowrap">${ic('text-purple-600','fa-print',`recPrint(${i})`)}${ic('text-red-600','fa-pen',`recEdit(${i})`)}${ic('text-rose-600','fa-trash',`delI('rec',${i})`)}</div></div>
+ <div class="mt-2">${row('Chief complaint',x.cc)}${row('Assessment',x.assess)}${row('Teeth',T)}${row('Investigation',x.invest)}${row('Finding / Diagnosis',x.finding)}${row('Rx plan',plan)}${row('Rx done',x.done)}${row('Follow-up',x.note)}</div>
+ ${al.length?`<div class="mt-2 flex flex-wrap gap-1">${al.slice(0,6).map(g=>`<span class="px-2 rounded bg-red-100 text-red-700 text-xs">${H(g[0])}</span>`).join('')}</div>`:''}</div>`}
+
+/* ---- dental chart overview (tap a tooth to start a record for it) ---- */
+function chart(){const p=gp(),h={};(p.d.rec||[]).forEach(r=>(r.teeth&&r.teeth.length?r.teeth:[r.tooth]).forEach(t=>{if(t)h[t]=(h[t]||0)+1}));
+ const t=n=>`<button onclick="cl();recNew(${n})" class="w-9 h-11 text-xs rounded border ${h[n]?'bg-red-500 text-white':'bg-white'}">${n}</button>`;
+ $('mb').innerHTML=`<h3 class="font-bold text-lg mb-1">Dental chart (FDI)</h3><p class="text-xs text-gray-500 mb-3">Red teeth already have records. Tap a tooth to start a new record for it.</p><div class="text-xs text-gray-400 mb-1">Upper (right | left)</div><div class="grid grid-cols-8 gap-1 mb-1">${FDI_U.slice(0,8).map(t).join('')}</div><div class="grid grid-cols-8 gap-1 mb-3">${FDI_U.slice(8).map(t).join('')}</div><div class="text-xs text-gray-400 mb-1">Lower (right | left)</div><div class="grid grid-cols-8 gap-1 mb-1">${FDI_L.slice(0,8).map(t).join('')}</div><div class="grid grid-cols-8 gap-1">${FDI_L.slice(8).map(t).join('')}</div><button onclick="cl()" class="mt-4 bg-gray-600 text-white px-4 py-2 rounded">Close</button>`;md.classList.replace('hidden','flex')}
+/* ---------- Comprehensive Dental Record: printable record (filled, only what was recorded) and blank form (all boxes) ---------- */
+const RP_CSS=()=>`<style>.rp h3{background:#eee;border-left:5px solid ${C.color};padding:3px 8px;font-size:12.5px;margin:12px 0 4px;page-break-after:avoid}.rp h4{font-size:11.5px;margin:7px 0 2px;border-bottom:1px solid #999;page-break-after:avoid}.rp .r{margin:2px 0;line-height:1.45;font-size:11.5px}.rp .ln{display:inline-block;border-bottom:1px solid #444;min-width:120px;height:13px;vertical-align:bottom}.rp .ln.w{min-width:60%}.rp .c{margin:2px 0 2px 10px;font-size:11.5px}.rp .g{border:1px solid #bbb;border-radius:4px;padding:3px 7px;margin:5px 0;page-break-inside:avoid}.rp table{width:100%;border-collapse:collapse;margin:4px 0;page-break-inside:auto}.rp th,.rp td{border:1px solid #666;padding:3px 5px;font-size:11px;text-align:left;vertical-align:top}.rp th{background:#f3f3f3 !important;color:#111 !important}.rp .al{border:2px solid #c00;background:#fff3f3;padding:5px 8px;margin:6px 0;font-size:11.5px}.rp .hit td{background:#ffe9e9;font-weight:bold}.rp .ch{display:grid;grid-template-columns:repeat(16,1fr);gap:0;margin:4px 0}.rp .ch div{border:1px solid #777;text-align:center;font-size:10px;height:30px;line-height:12px;padding-top:2px}.rp .ch div b{display:block;font-size:11px;min-height:12px}.rp .st-C{background:#fde2e2}.rp .st-F{background:#dbeafe}.rp .st-Cr{background:#fef3c7}.rp .st-RCT{background:#ede9fe}.rp .st-I{background:#dcfce7}.rp .st-M{background:#d1d5db}.rp .meta td{border:none;border-bottom:1px solid #444;font-size:12px;padding:3px 4px}.rp .sg{display:flex;gap:30px;margin-top:28px}.rp .sg div{flex:1;border-top:1px solid #333;padding-top:3px;font-size:11.5px}</style>`;
+const rpBox=(on,blank)=>blank?'☐':on?'☒':'☐';
+function rpSubs(f,v,blank){return f.subs.map(s=>rpInline(s,v,blank)).filter(Boolean).join('; ')}
+/* inline text for a field: "Label: value" (filled) or "Label ☐ a ☐ b ____" (blank); '' when nothing recorded */
+function rpInline(f,v,blank){const F=v.f,k=f.k,val=F[k],lb=f.l?f.l+': ':'';
+ if(f.t=='text'||f.t=='area'||f.t=='date')return blank?`${H(lb)}<span class="ln"></span>`:rfEmpty(val)?'':`${H(lb)}<b>${H(f.t=='date'?fdate(val):val)}</b>`;
+ if(f.t=='radio')return blank?`${H(lb)}${f.o.map(o=>'☐ '+H(o)).join(' ')}`:rfEmpty(val)?'':`${H(lb)}<b>${H(val)}</b>`;
+ if(f.t=='multi'){const a=(val||[]).map(o=>o=='Other'&&F[k+'_other']?'Other ('+F[k+'_other']+')':o);return blank?`${H(lb)}${f.o.map(o=>'☐ '+H(o)+(o=='Other'?': ____':'')).join(' ')}`:a.length?`${H(lb)}<b>${H(a.join(', '))}</b>`:''}
+ return ''}
+function rpField(f,v,blank){const F=v.f,k=f.k,val=F[k];
+ switch(f.t){
+ case 'text':case 'area':case 'date':case 'radio':case 'multi':{const s=rpInline(f,v,blank);return s?`<div class="r">${s}${blank&&f.t=='area'?'<div><span class="ln w"></span></div>':''}</div>`:''}
+ case 'yn':return blank?`<div class="r">${H(f.l)}: ☐ No ☐ Yes → specify: <span class="ln"></span></div>`:val?`<div class="r">${H(f.l)}: <b>${H(val)}${val=='Yes'&&F[k+'_s']?' → '+H(F[k+'_s']):''}</b></div>`:'';
+ case 'cond':{const on=!!val,sub=on||blank?rpSubs(f,v,blank):'';return blank||on?`<div class="c">${rpBox(on,blank)} <b>${H(f.l)}</b>${sub?': '+sub:''}</div>`:''}
+ case 'line':{const s=f.fs.map(x=>rpInline(x,v,blank)).filter(Boolean);return s.length?`<div class="r">${s.join(' &nbsp; ')}</div>`:''}
+ case 'grp':{const inner=rpFields(f.fs,v,blank);return inner?`<div class="g"><b>${H(f.l)}</b>${inner}</div>`:''}
+ case 'rows':return rpRows(f,v,blank);
+ case 'chart':return rpChart(v,blank)}
+ return ''}
+function rpFields(fs,v,blank){let out='',pend='';fs.forEach(f=>{if(f.t=='h'){pend=`<h4>${H(f.l)}</h4>`;return}const s=rpField(f,v,blank);if(s){out+=pend+s;pend=''}});return out}
+function rpRows(f,v,blank){const a=v.rows[f.k]||[];if(!blank&&!a.length)return '';const n=blank?Math.max(f.n,3)+1:a.length,rows=Array.from({length:n},(_,i)=>a[i]||{}),num=f.num;
+ let tot=0;const body=rows.map((x,i)=>{tot+=+x.fee||0;return `<tr>${num?`<td>${i+1}</td>`:''}${f.cols.map(c=>`<td>${c[0]=='status'&&blank?'☐ Planned ☐ Done':c[0]=='status'&&x.status?(x.status=='Done'?'☒ Done':'☒ Planned'):H(x[c[0]]||'')}</td>`).join('')}</tr>`}).join('');
+ return `<div class="r"><b>${H(f.l)}</b></div><table><thead><tr>${num?'<th style="width:4%">#</th>':''}${f.cols.map(c=>`<th>${H(c[1])}</th>`).join('')}</tr></thead><tbody>${body}${!blank&&num&&tot?`<tr><td colspan="${f.cols.length}" style="text-align:right"><b>Total fee</b></td><td><b>${ETB(tot)}</b></td></tr>`:''}</tbody></table>`}
+function rpChart(v,blank){const c=v.chart||{};if(!blank&&!Object.keys(c).length)return '';const cell=n=>`<div class="${c[n]?'st-'+c[n]:''}">${n}<b>${blank?'':H(c[n]||'')}</b></div>`;
+ return `<div class="r"><b>UR</b> 18 &rarr; 11 &nbsp;|&nbsp; <b>UL</b> 21 &rarr; 28 (top) &middot; <b>LR</b> 48 &rarr; 41 &nbsp;|&nbsp; <b>LL</b> 31 &rarr; 38 (bottom)</div><div class="ch">${FDI_U.map(cell).join('')}</div><div class="ch">${FDI_L.map(cell).join('')}</div><div class="r" style="font-size:10px">Legend: ${RF_LEG}</div>`}
+function rpGuide(f,blank){const hit=blank?[]:rfAlerts(f).map(g=>g[0]);
+ return `<table><thead><tr><th style="width:24%">Condition</th><th>Important dental action</th></tr></thead><tbody>${RGUIDE.map(g=>`<tr class="${hit.includes(g[0])?'hit':''}"><td>${hit.includes(g[0])?'▶ ':''}${H(g[0])}</td><td>${H(g[1])}</td></tr>`).join('')}</tbody></table><div class="r"><b>${H(RGUIDE_RULE)}</b></div>`}
+function recFullHtml(p,r,blank){const v=blank?{f:{},rows:{},chart:{}}:r.f?{f:r.f,rows:r.rows||{},chart:r.chart||{}}:rfLegacy(r||{}),al=blank?[]:rfAlerts(v.f),line=x=>blank?'<span class="ln"></span>':H(x||'');
+ const meta=`<table class="meta"><tr><td><b>Clinic:</b> ${H(C.name)}</td><td><b>Record No.:</b> ${blank?'<span class="ln"></span>':H(r.no||'')}</td><td><b>Date:</b> ${blank?'<span class="ln"></span>':H(dsp(r))}</td></tr><tr><td><b>Patient:</b> ${blank?'<span class="ln"></span>':H(p.name)}</td><td><b>ID:</b> ${blank?'<span class="ln"></span>':H(p.card)}</td><td><b>Dentist:</b> ${blank?'<span class="ln"></span>':H(r.by||'')}</td></tr>${blank?'':`<tr><td><b>Sex / Age:</b> ${H(p.sex)} / ${H(p.age||'-')}</td><td colspan="2"><b>Phone:</b> ${H(p.phone)}</td></tr>`}</table>`;
+ const alb=al.length||(v.f.alert)?`<div class="al"><b>MEDICAL ALERT</b>${v.f.alert_d?': '+H(v.f.alert_d):''}${al.length?'<br>'+al.map(g=>H(g[0])).join(' &middot; '):''}</div>`:'';
+ const secs=RSEC.map(s=>{const inner=rpFields(s.fs,v,blank);return inner?`<h3>${s.n}. ${H(s.t)}</h3>${inner}`:''}).join('');
+ return PCSS_RP()+docHead('COMPREHENSIVE DENTAL RECORD',blank?'Blank form':'Record '+H(r.no||''))+`<div class="rp">${meta}${alb}${secs}<h3>9. SIGNATURES</h3><div class="sg"><div>Patient/Guardian: ${blank?'':''}<br>Date: </div><div>Dentist: ${blank?'':H(r.by||'')}<br>Date: </div></div><h3 style="page-break-before:${blank?'always':'auto'}">10. CLINICAL ACTION GUIDE FOR CHRONIC &amp; INFECTIOUS DISEASES</h3>${rpGuide(v.f,blank)}</div>`}
+const PCSS_RP=()=>RP_CSS();
+function recPrint(i){const p=gp(),r=p&&p.d.rec&&p.d.rec[i];if(!r)return;printHtml('Dental record - '+p.name,recFullHtml(p,r,false))}
+function recBlankPrint(){printHtml('Comprehensive Dental Record (blank)',recFullHtml({},{},true))}
 const tsOf=(x,p)=>x.ts||Date.parse(x.date)||(p&&p.date)||0;
 const invNo=(p,x,i)=>x.no||('INV-'+String(p.card).padStart(3,'0')+'-'+(i+1));
 function nextInvNo(){let m=0;S.patients.forEach(p=>(p.d.inv||[]).forEach(x=>{const n=parseInt(String(x.no||'').replace(/\D/g,''))||0;if(n>m)m=n}));return 'INV-'+String(m+1).padStart(4,'0')}
@@ -415,8 +662,6 @@ function presc(p){const a=p.d.presc||[];
 function fm(){const q=ps.value.toLowerCase();pm.innerHTML='<option value="">Select a medication</option>'+MEDS.filter(m=>m.toLowerCase().includes(q)).map(m=>`<option>${m}</option>`).join('')}
 function am(){if(pm.value&&!MED.includes(pm.value)){MED.push(pm.value);mc.innerHTML=MED.map(m=>`<span class="bg-red-100 text-red-800 text-sm rounded-full px-3 py-1">${m}</span>`).join('')}}
 function sp(){const p=gp();(p.d.presc=p.d.presc||[]).push({dx:pd.value,meds:MED,txt:pt.value,date:isoD(Date.now())});MED=[];sv();go('patient')}
-function chart(){const p=gp(),h={};(p.d.rec||[]).forEach(r=>h[r.tooth]=(h[r.tooth]||0)+1);const t=n=>`<button onclick="cl();addI('rec',${n})" class="w-9 h-11 text-xs rounded border ${h[n]?'bg-red-500 text-white':'bg-white'}">${n}</button>`,U1=[...Array(16)].map((_,i)=>i+1),L1=[...Array(16)].map((_,i)=>32-i);
- $('mb').innerHTML=`<h3 class="font-bold text-lg mb-1">Dental chart</h3><p class="text-xs text-gray-500 mb-3">Red teeth already have records. Tap a tooth to add a record for it.</p><div class="text-xs text-gray-400 mb-1">Upper</div><div class="grid grid-cols-8 gap-1 mb-3">${U1.map(t).join('')}</div><div class="text-xs text-gray-400 mb-1">Lower</div><div class="grid grid-cols-8 gap-1">${L1.map(t).join('')}</div><button onclick="cl()" class="mt-4 bg-gray-600 text-white px-4 py-2 rounded">Close</button>`;md.classList.replace('hidden','flex')}
 /* ---------- Bilingual consent + fee agreement form (Amharic first, English second) ---------- */
 const CF={
  t1:['የታካሚ የጥርስ ሕክምና አገልግሎት ፈቃድ ቅጽ','Patient\'s Consent Form for Dental Medical Services'],
@@ -459,14 +704,14 @@ function consentForm(blank){const p=blank?null:gp(),v=x=>p&&x!=null&&x!==''&&x!=
 /* ---------- Printable Dental Record summary (patient screen + print center) ---------- */
 function recSummaryHtml(p){
  const R=[...(p.d.rec||[])].sort((a,b)=>tsOf(a,p)-tsOf(b,p)),Pr=p.d.presc||[],cnt={};
- R.forEach(r=>{cnt[r.tooth]=(cnt[r.tooth]||0)+1});
+ R.forEach(r=>(r.teeth&&r.teeth.length?r.teeth:[r.tooth]).forEach(t=>{if(t)cnt[t]=(cnt[t]||0)+1}));
  const cell=n=>`<td style="width:6.25%;text-align:center;padding:5px 0;border:1px solid #999;${cnt[n]?'background:'+C.color+';color:#fff;font-weight:bold':''}">${n}${cnt[n]?`<div style="font-size:9px;font-weight:normal">x${cnt[n]}</div>`:''}</td>`,
- up=[...Array(16)].map((_,i)=>i+1),lo=[...Array(16)].map((_,i)=>32-i),
- chartT=`<table style="table-layout:fixed;margin:4px 0"><tr>${up.map(cell).join('')}</tr><tr>${lo.map(cell).join('')}</tr></table><div class="muted" style="font-size:10px">Upper teeth 1-16 (top row) &middot; lower teeth 32-17 (bottom row) &middot; coloured = has record, xN = number of records${cnt['Full mouth']?' &middot; <b>Full mouth: '+cnt['Full mouth']+' record(s)</b>':''}</div>`,
+ up=FDI_U,lo=FDI_L,
+ chartT=`<table style="table-layout:fixed;margin:4px 0"><tr>${up.map(cell).join('')}</tr><tr>${lo.map(cell).join('')}</tr></table><div class="muted" style="font-size:10px">FDI numbering: upper 18-11 | 21-28 (top row) &middot; lower 48-41 | 31-38 (bottom row) &middot; coloured = has record, xN = number of records${cnt['Full mouth']?' &middot; <b>Full mouth: '+cnt['Full mouth']+' record(s)</b>':''}</div>`,
  last=R.length?dsp(R[R.length-1]):'-',first=R.length?dsp(R[0]):'-',
  kp=`<div class="kpi">Records<b>${R.length}</b></div><div class="kpi">Teeth with records<b>${Object.keys(cnt).filter(k=>k!='Full mouth').length}</b></div><div class="kpi">First visit<b>${H(first)}</b></div><div class="kpi">Last visit<b>${H(last)}</b></div>`;
  return docHead('Dental Record Summary',fd(NOW()))+pInfo(p)+kp+'<h2>Tooth chart</h2>'+chartT+
-  '<h2>Dental findings and treatment</h2>'+(R.length?tbl2(['Date','Tooth','Diagnosis / Finding','Treatment','Notes'],R.map(x=>[H(dsp(x)),H(x.tooth),H(x.finding),H(x.treat),H(x.note)])):'<p class="muted">No dental records yet.</p>')+
+  '<h2>Dental findings and treatment</h2>'+(R.length?tbl2(['Date','Tooth','Chief complaint','Assessment','Investigation','Finding','Rx plan','Rx done'],R.map(x=>[H(dsp(x)),H((x.teeth&&x.teeth.length?x.teeth.join(', '):x.tooth)||''),H(x.cc),H(x.assess),H(x.invest),H(x.finding),H([x.plancat,x.treat].filter(Boolean).join(': ')+(x.note?' ('+x.note+')':'')),H(x.done)])):'<p class="muted">No dental records yet.</p>')+
   (Pr.length?'<h2>Prescriptions</h2>'+tbl2(['Date','Diagnosis','Medication','Instructions'],Pr.map(x=>[H(dsp(x)),H(x.dx),H((x.meds||[]).join(', ')),H(x.txt)])):'')+
   '<div class="sig"><div>Doctor / ሐኪም</div><div>Patient / ታካሚ</div></div>'}
 function recSummaryPrint(id){const p=id!=null?S.patients.find(x=>x.id==id):gp();if(!p)return;printHtml('Dental record summary - '+p.name,recSummaryHtml(p))}
@@ -671,10 +916,12 @@ const clRow=(am,en,val,w)=>`<div class="cl-row"><span class="cl-l">${am?am+' / '
 
 /* ---- patient clinical summary card (Hx, medications, investigations, referral, biopsy, consent) ---- */
 const HXLIST=[['ደም ግፊት','Hypertension',['Hypertension']],['ስኳር በሽታ','Diabetes',['Diabetes Mellitus']],['የደም መፍሰስ ችግር','Bleeding disorder',['Bleeding Disorder','Coagulopathy']],['የሳንባ በሽታ','TB / pneumonia',[],/\btb\b|pneumonia|tuberc/i],['የሚጥ በሽታ','Epilepsy',['Epilepsy']],['የጉበት በሽታ','Hepatitis A, B, C',[],/hepat/i],['ኤችአይቪ/ኤድስ','HIV/AIDS CD4',['Immune Deficiency'],/\bhiv\b|aids/i],['የሚወስደው መድሃኒት ካለ','Any drug taking',['Medications Taken']],['አለርጂ','Allergy',['Allergies']],['እርግዝና (ለሴቶች)','Pregnancy',['Pregnancy']],['ሌላ በሽታ ካለ','Any other disease',['Anemia','Asthma','Heart Disease','Organopathy']]];
+const RFTICK={'Hypertension':f=>f.htn,'Diabetes':f=>f.diab,'Bleeding disorder':f=>f.bleed,'TB / pneumonia':f=>f.tb||hasO(f,'resp','Past TB'),'Epilepsy':f=>hasO(f,'neuro','Epilepsy')||hasO(f,'neuro','Seizures'),'Hepatitis A, B, C':f=>f.hbv||f.hcv||hasO(f,'liver','Hepatitis'),'HIV/AIDS CD4':f=>f.hiv||hasO(f,'immuno','HIV'),'Any drug taking':f=>f.meds,'Allergy':f=>(f.allergy||[]).length,'Pregnancy':f=>f.preg,'Any other disease':f=>f.cvs||f.renal||f.endo||f.autoimm||f.cancer||f.ochr||f.resp};
+const rfTick=(p,n)=>(p.d.rec||[]).some(r=>r.f&&RFTICK[n]&&RFTICK[n](r.f));
 function clinicalItems(p){const d=p.d,L=[],add=(x,o)=>{if(Object.values(o).some(v=>v&&String(v).trim()))L.push(Object.assign({ts:tsOf(x,p),cc:'',ex:'',dx:'',plan:'',done:''},o))},j=(...a)=>a.filter(v=>v!=null&&String(v).trim()!=='').join(' - ');
  (d.health||[]).forEach(x=>add(x,{cc:x.note,ex:j(x.bp&&'BP '+x.bp,x.allergy&&'Allergy: '+x.allergy)}));
  (d.note||[]).forEach(x=>add(x,{cc:j(x.title,x.note)}));
- (d.rec||[]).forEach(x=>add(x,{ex:j(x.tooth&&'Tooth '+x.tooth,x.note),dx:x.finding,done:x.treat}));
+ (d.rec||[]).forEach(x=>add(x,{cc:x.cc,ex:j(x.tooth&&'Tooth '+x.tooth,x.assess,x.invest,x.note),dx:x.finding,plan:j(x.plancat,x.treat),done:x.done}));
  (d.ortho||[]).forEach(x=>add(x,{plan:j('Ortho',x.type,x.note)}));
  (d.presc||[]).forEach(x=>add(x,{dx:x.dx,plan:j('Rx: '+(x.meds||[]).join(', '),x.txt)}));
  (d.lab||[]).forEach(x=>add(x,{ex:j('Lab: '+(x.req||''),x.lab&&'('+x.lab+')',x.done=='Yes'?'done':'ordered')}));
@@ -683,7 +930,7 @@ function clinicalItems(p){const d=p.d,L=[],add=(x,o)=>{if(Object.values(o).some(
  (d.fna||[]).forEach(x=>add(x,{plan:j(x.type=='Biopsy'?'Biopsy':'FNA',x.site,x.note)}));
  return L.sort((a,b)=>a.ts-b.ts)}
 function clinicalSummaryHtml(p){const c=p.d.consent||{ck:[],o:'',t:''},ck=new Set(c.ck||[]),txt=(c.o||'')+' '+((p.d.health||[]).map(x=>x.allergy||'').join(' ')),items=clinicalItems(p),
- on=h=>h[2].some(n=>ck.has(n))||(h[3]&&h[3].test(txt))||(h[1]=='Allergy'&&(p.d.health||[]).some(x=>x.allergy)),
+ on=h=>rfTick(p,h[1])||h[2].some(n=>ck.has(n))||(h[3]&&h[3].test(txt))||(h[1]=='Allergy'&&(p.d.health||[]).some(x=>x.allergy)),
  hx=HXLIST.map(h=>`<div><span>${h[0]} /${h[1]}/</span><span class="cl-bx">${on(h)?'&#10003;':''}</span></div>`).join(''),
  other=[...ck].filter(n=>['Anemia','Asthma','Heart Disease','Organopathy'].includes(n)).join(', '),
  rows=items.map(x=>`<tr><td style="white-space:nowrap">${H(fdate(x.ts))}</td><td>${H(x.cc)}</td><td>${H(x.ex)}</td><td>${H(x.dx)}</td><td>${H(x.plan)}</td><td>${H(x.done)}</td></tr>`).join('')+Array(Math.max(0,8-items.length)).fill('<tr>'+'<td>&nbsp;</td>'.repeat(6)+'</tr>').join('');
