@@ -63,7 +63,7 @@ table.rf-t{width:100%;border-collapse:collapse;min-width:520px}table.rf-t th,tab
    <div class="relative mt-1 mb-6"><input id="lw" type="password" class="inp" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Enter your password" onkeydown="if(event.key=='Enter')login()">
     <i class="fa fa-eye absolute right-3 top-3 cursor-pointer" style="color:var(--c)" onclick="lw.type=lw.type=='password'?'text':'password'"></i></div>
    <button id="lbtn" onclick="login()" class="lg w-full text-white font-semibold py-3 rounded-xl shadow"><i class="fa fa-right-to-bracket mr-2"></i>Sign In</button>
-   <p class="text-xs text-center mt-3 text-gray-500">Forgot your password? Ask your clinic admin to reset it under Users.</p><p id="le" class="text-sm text-center mt-3 hidden" style="color:var(--c)">Invalid username or password.</p>
+   <p class="text-xs text-center mt-3 text-gray-500"><button type="button" class="underline" style="color:var(--cd)" onclick="forgotPw()">Forgot your password? Send a reset link to my email</button></p><p id="le" class="text-sm text-center mt-3 hidden" style="color:var(--c)">Invalid username or password.</p>
    <p class="text-center text-sm mt-6 pt-4 border-t border-red-100" style="color:var(--c)">Powered by <b>SmartDent</b></p></div>
   <div class="hidden md:flex w-1/2 items-center justify-center text-center p-10" style="background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,white))">
    <div><div class="text-5xl font-bold" style="color:#ffffff">Professional Dental</div><div class="text-3xl font-light mt-1" style="color:#ffffff">Care Center</div></div></div>
@@ -150,6 +150,8 @@ const DB=(()=>{
   async saveClinic(c){ck(await sb.from('clinics').upsert({id:c.id,name:c.name,type:c.type,color:c.color,icon:c.icon,logo:c.logo||null}))},
   async deleteClinic(id){ck(await sb.from('clinics').delete().eq('id',id))},
   async users(){return ck(await sb.from('profiles').select('*').order('created_at'))},
+  async recoverRequest(username){const r=await fetch(SB_URL+'/functions/v1/recover-password',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},body:JSON.stringify({username,origin:location.origin})});const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||'Could not send the email. Try again.');return j.message},
+  async recoverApply(tokenHash,pw){const v=await sb.auth.verifyOtp({token_hash:tokenHash,type:'recovery'});if(v.error)throw new Error('This reset link is invalid or has expired. Request a new one.');const u=await sb.auth.updateUser({password:pw});if(u.error)throw new Error(u.error.message||'Could not set the password.');await sb.auth.signOut()},
   async fn(action,payload){const {data}=await sb.auth.getSession();if(!data.session)throw new Error('Please sign in again.');
    let r;try{r=await fetch(SB_URL+'/functions/v1/manage-users',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+data.session.access_token,apikey:SB_KEY},body:JSON.stringify({action,...payload})})}catch(e){throw new Error('Could not reach the server. Check your internet connection.')}
    const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||'Request failed');return j},
@@ -227,11 +229,14 @@ function selC(){const hq=lc.value=='__hq',c=hq?HQ:(CL.find(x=>x.id==lc.value)||C
 async function login(){le.classList.add('hidden');const b=$('lbtn');if(b.disabled)return;b.disabled=true;
  try{if(!lp.value.trim()||!lw.value)throw new Error('Enter your username and password.');const u=await DB.signIn(lp.value,lw.value),sel=lc.value,hq=sel=='__hq',cid=hq?(CL.some(c=>c.id==lsGet(K.cc))?lsGet(K.cc):(CL[0]||{}).id):sel;if(hq&&u.role!='admin'){await DB.signOut();throw new Error('Only administrators can sign in here. Choose your clinic.')}if(u.role!='admin'&&u.clinic!=cid){await DB.signOut();throw new Error('This account does not belong to the selected clinic.')}
   if(lr.checked)lsSet(K.s,sel);else lsDel(K.s);U=u;await loadClinic(cid);setCur();boot()}catch(e){le.textContent=e.message||'Sign-in failed.';le.classList.remove('hidden')}finally{b.disabled=false}}
+const RECOV=(location.hash.match(/[#&]recovery=([^&]+)/)||[])[1]||'';
+function forgotPw(){form('Forgot password',[['un','Username']],{un:lp.value||''},async v=>{if(!v.un||!v.un.trim())throw new Error('Enter your username.');const m=await DB.recoverRequest(v.un.trim());toast(m)},'Send reset link')}
+function resetPwForm(){const t=decodeURIComponent(RECOV);try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}form('Set a new password',[['p1','New password (6+ characters)','password'],['p2','Repeat new password','password']],{},async v=>{if((v.p1||'').length<6)throw new Error('Password must be at least 6 characters.');if(v.p1!==v.p2)throw new Error('The two passwords do not match.');await DB.recoverApply(t,v.p1);toast('Password changed. Please sign in.')},'Save password')}
 async function logout(){try{await SQ}catch(e){}await DB.signOut();lsDel(K.cc);try{sessionStorage.removeItem(K.cc)}catch(e){}location.reload()}
 function boot(){if(!U||!C)return;login_.classList.add('hidden');app.classList.remove('hidden');hdr();go('dash')}
-async function start(){const ov=$('boot');try{await DB.init();CL=await DB.clinics();lcInit();const p=await DB.profile();if(p){U=p;let cid=sessionStorage.getItem(K.cc)||lsGet(K.cc)||'';if(!CL.some(c=>c.id==cid))cid=U.role=='admin'?(CL[0]||{}).id:U.clinic;await loadClinic(cid);boot()}}
+async function start(){const ov=$('boot');try{await DB.init();CL=await DB.clinics();lcInit();const p=RECOV?null:await DB.profile();if(p){U=p;let cid=sessionStorage.getItem(K.cc)||lsGet(K.cc)||'';if(!CL.some(c=>c.id==cid))cid=U.role=='admin'?(CL[0]||{}).id:U.clinic;await loadClinic(cid);boot()}}
  catch(e){ov.innerHTML=`<div class="text-center p-6"><p class="mb-3">${H(e.message||'Could not start the app.')}</p><button onclick="location.reload()" class="lg text-white font-semibold px-5 py-2 rounded-xl">Try again</button></div>`;return}
- ov.style.display='none'}
+ ov.style.display='none';if(RECOV)resetPwForm()}
 /* clinic create / edit */
 let CT=null,CK=null,CA={u:'',p:''};
 function clinicModal(c,ok,auth){CT={...c};CK=ok;CA={u:'',p:''};cmr(auth?1:0);md.classList.replace('hidden','flex')}
