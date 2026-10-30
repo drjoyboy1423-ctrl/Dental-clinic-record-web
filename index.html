@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dc2626"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no">
 <title>Professional Dental Care Center</title>
 <meta name="description" content="Dental clinic management: patients, appointments, invoices and records.">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -58,6 +58,12 @@ header{padding-top:max(.75rem,env(safe-area-inset-top))}
  h2.text-2xl,h2.text-3xl{font-size:1.35rem}
  .overflow-x-auto{-webkit-overflow-scrolling:touch}
 }
+
+/* bottom navigation bar (phones) */
+#bnav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fff;border-top:1px solid #e5e7eb;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 8px #0001}
+#bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 6px;font-size:11px;color:#6b7280;min-height:56px;background:none;border:0}
+#bnav button i{font-size:18px}#bnav button.on{color:var(--c)}
+@media (max-width:1023px){#bnav.on{display:flex}#v{padding-bottom:calc(80px + env(safe-area-inset-bottom))}#toast{bottom:calc(72px + env(safe-area-inset-bottom))!important}}
 </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -153,13 +159,13 @@ const DB=(()=>{
  return {
   async init(){if(!window.supabase)throw new Error('Could not load the sign-in library. Check your internet connection.');sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'dental_auth'},global:{fetch:(u,o)=>{o=o||{};if(o.headers&&typeof o.headers.entries=='function'&&!Array.isArray(o.headers))o={...o,headers:Object.fromEntries(o.headers.entries())};return fetch(u,o)}}})},
   async clinics(){return ck(await sb.from('clinics').select('*').order('created_at'))},
-  async profile(){const {data}=await sb.auth.getSession();if(!data.session)return null;const r=await sb.from('profiles').select('*').eq('id',data.session.user.id).maybeSingle();if(r.error||!r.data){await sb.auth.signOut();return null}return prof(r.data)},
+  async profile(){const {data}=await sb.auth.getSession();if(!data.session)return null;const r=await sb.from('profiles').select('*').eq('id',data.session.user.id).maybeSingle();if(r.error)throw new Error(r.error.message||'Network error');if(!r.data){await sb.auth.signOut();return null}return prof(r.data)},
   async signIn(username,password){const r=await sb.auth.signInWithPassword({email:email(username),password});if(r.error)throw new Error('Invalid username or password.');const p=await sb.from('profiles').select('*').eq('id',r.data.user.id).maybeSingle();if(p.error||!p.data){await sb.auth.signOut();throw new Error('This account has no profile. Ask your admin.')}return prof(p.data)},
   async token(){const {data}=await sb.auth.getSession();return data.session?data.session.access_token:null},
   async signOut(){try{await sb.auth.signOut()}catch(e){}},
   async loadClinicData(cid){const [p,l]=await Promise.all([sb.from('patients').select('id,data').eq('clinic',cid).limit(5000),sb.from('clinic_lists').select('kind,data').eq('clinic',cid)]);const pr=ck(p),ls=ck(l),o={dis:null,proc:null};ls.forEach(x=>o[x.kind]=x.data);return {patients:pr.map(r=>r.data),dis:o.dis,proc:o.proc}},
   async savePatients(cid,ins,upd,del){const now=new Date().toISOString();
-   if(ins.length)ck(await sb.from('patients').insert(ins.map(p=>({id:p.id,clinic:cid,data:p,updated_at:now}))));
+   if(ins.length){const r=await sb.from('patients').insert(ins.map(p=>({id:p.id,clinic:cid,data:p,updated_at:now})));if(r.error){if(/duplicate|23505/i.test((r.error.message||'')+(r.error.code||''))){await Promise.all(ins.map(async p=>ck(await sb.from('patients').update({data:p,updated_at:now}).eq('id',p.id))))}else ck(r)}}
    await Promise.all(upd.map(async p=>ck(await sb.from('patients').update({data:p,updated_at:now}).eq('id',p.id))));
    if(del.length)ck(await sb.from('patients').delete().in('id',del.map(Number)))},
   async saveList(cid,kind,data){ck(await sb.from('clinic_lists').upsert({clinic:cid,kind,data,updated_at:new Date().toISOString()}))},
@@ -221,7 +227,7 @@ function setTheme(c){if(isHQ())c=HQ;const r=document.documentElement.style;r.set
 const migrate=(p,i)=>{p.card??=(p.cardNo&&p.cardNo!='N/A'?p.cardNo:i+1);p.doc??=p.doctor||'';p.doctor??=p.doc;p.date=typeof p.date=='number'?p.date:(Date.parse(p.date)||Date.now());p.arr??=p.date;p.st??='new';p.fin??=false;p.d??={}};
 function applyData(d){S.patients=d.patients||[];S.patients.forEach(migrate);S.dis=d.dis||DIS.map((n,i)=>({id:i+1,name:n,date:'12/3/2025'}));S.proc=d.proc||PRO.map((x,i)=>({id:i+1,n:x[0],p:x[1]}));S.fin=d.fin||{sal:[],exp:[]};S.fin.sal=S.fin.sal||[];S.fin.exp=S.fin.exp||[];
  SNAP=new Map(S.patients.map(p=>[String(p.id),stab(p)]));SNAPL={dis:stab(S.dis),proc:stab(S.proc),fin:stab(S.fin)};ensureInvNos();if(S.patients.some(p=>SNAP.get(String(p.id))!==stab(p)))sv()}
-async function loadClinic(id){C=CL.find(c=>c.id==id)||CL[0];applyData(await DB.loadClinicData(C.id));setTheme(C);document.title=isHQ()?HQ.name:C.name}
+async function loadClinic(id){C=CL.find(c=>c.id==id)||CL[0];applyData(await DB.loadClinicData(C.id,true));setTheme(C);document.title=isHQ()?HQ.name:C.name}
 function toast(m,ok){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');t.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:80;max-width:92vw;padding:10px 16px;border-radius:10px;color:#fff;font-size:14px;box-shadow:0 4px 14px #0004';document.body.appendChild(t)}t.style.background=ok?'#15803d':'#b91c1c';t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',ok?1800:6000)}
 function sv(){SQ=SQ.then(syncNow).then(()=>{if(SERR){SERR=0;toast('Saved',1)}},e=>{SERR=1;toast('Could not save: '+(e.message||e)+'. Your changes will retry on the next save.')})}
 async function syncNow(){if(!C||!U)return;const cid=C.id,cur=new Map(S.patients.map(p=>[String(p.id),stab(p)])),ins=[],upd=[],del=[];
@@ -249,8 +255,9 @@ const RECOV=(location.hash.match(/[#&]recovery=([^&]+)/)||[])[1]||'';
 function forgotPw(){form('Forgot password',[['un','Username']],{un:lp.value||''},async v=>{if(!v.un||!v.un.trim())throw new Error('Enter your username.');const m=await DB.recoverRequest(v.un.trim());toast(m)},'Send reset link')}
 function resetPwForm(){const t=decodeURIComponent(RECOV);try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}form('Set a new password',[['p1','New password (6+ characters)','password'],['p2','Repeat new password','password']],{},async v=>{if((v.p1||'').length<6)throw new Error('Password must be at least 6 characters.');if(v.p1!==v.p2)throw new Error('The two passwords do not match.');await DB.recoverApply(t,v.p1);toast('Password changed. Please sign in.')},'Save password')}
 let LOUT=0;
-async function logout(){if(LOUT)return;LOUT=1;const w=(p,ms)=>Promise.race([Promise.resolve(p).catch(()=>{}),new Promise(r=>setTimeout(r,ms))]);
+async function logout(){if(LOUT)return;if(typeof offLogoutOk=='function'&&!(await offLogoutOk()))return;LOUT=1;const w=(p,ms)=>Promise.race([Promise.resolve(p).catch(()=>{}),new Promise(r=>setTimeout(r,ms))]);
  try{await w(SQ,2500);await w(DB.signOut(),2500)}catch(e){}
+ try{if(typeof offWipe=='function')await offWipe()}catch(e){}
  try{lsDel(K.cc)}catch(e){}try{sessionStorage.removeItem(K.cc)}catch(e){}
  try{Object.keys(localStorage).filter(k=>k=='dental_auth'||/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}
  location.reload()}
@@ -323,6 +330,52 @@ function mobTheme(){let m=document.querySelector('meta[name=theme-color]');if(!m
 const _st0=setTheme;setTheme=function(c){_st0(c);try{mobTheme()}catch(e){}};
 /* 3. Tap a phone number to call it. */
 const telA=(n,cls)=>{const d=String(n||'').replace(/[^\d+]/g,'');return d?`<a href="tel:${H(d)}" onclick="event.stopPropagation()" class="${cls||''}" style="color:inherit;text-decoration:none">${H(n)}</a>`:H(n||'')};
+
+/* 4. Bottom navigation bar (phones): the four main pages for your role + More (opens the full menu). */
+function bnavRender(){const a=$('app');if(!U||!a||a.classList.contains('hidden'))return;let b=$('bnav');if(!b){b=document.createElement('nav');b.id='bnav';b.setAttribute('aria-label','Main menu');document.body.appendChild(b)}
+ const ok=RN[U.role]||RN.reception,lbl={dash:'Home',recent:'Patients',appt:'Appointments',card:'New card',rinv:'Invoices',fin:'Finance',ran:'Analytics'},
+  items=['dash','recent','appt','card','rinv','fin','ran'].filter(k=>ok.includes(k)).slice(0,4).map(k=>NAV.find(n=>n[0]==k)).filter(Boolean),cur=V=='patient'?'recent':V;
+ b.innerHTML=items.map(n=>`<button class="${cur==n[0]?'on':''}" onclick="go('${n[0]}')"><i class="fa ${n[2]}"></i><span>${lbl[n[0]]||n[1]}</span></button>`).join('')+`<button onclick="tgl()"><i class="fa fa-bars"></i><span>More</span></button>`;b.classList.add('on')}
+const _go1=go;go=function(){const r=_go1.apply(this,arguments);try{bnavRender()}catch(e){}return r};
+/* 5. Install the app on the home screen (works offline once installed) */
+let INSTALL_EV=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL_EV=e;instShow()});
+addEventListener('appinstalled',()=>{INSTALL_EV=null;instShow()});
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform=='MacIntel'&&navigator.maxTouchPoints>1),isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+function instShow(){const el=$('instbtn');if(el)el.style.display=(INSTALL_EV||(isIOS()&&!isStandalone()))?'flex':'none'}
+async function installApp(){if(INSTALL_EV){INSTALL_EV.prompt();try{await INSTALL_EV.userChoice}catch(e){}INSTALL_EV=null;instShow();return}
+ $('mb').innerHTML='<h3 class="font-bold text-xl mb-3">Install on your phone</h3><p class="text-sm mb-3">'+(isIOS()?'Tap the <b>Share</b> button in Safari, then <b>Add to Home Screen</b>.':'Open the browser menu (&#8942;) and tap <b>Install app</b> or <b>Add to Home screen</b>.')+'</p><p class="text-sm text-gray-600">The app then opens full screen like any other app and keeps working when the internet is down.</p><div class="text-right mt-4"><button onclick="cl()" class="px-4 py-2 rounded bg-gray-200">Close</button></div>';md.classList.replace('hidden','flex')}
+function mobInit(){const lo=document.querySelector('#sb [onclick="logout()"]');if(lo&&!$('instbtn')){lo.insertAdjacentHTML('beforebegin','<div class="nv border-t" id="instbtn" onclick="installApp()" style="display:none"><i class="fa fa-download"></i>Install app</div>')}instShow();bnavRender();mobTheme()}
+const _boot0=boot;boot=function(){const r=_boot0.apply(this,arguments);try{mobInit()}catch(e){}return r};
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+/* ---------- Offline mode: keep working without internet; changes are saved on the device and uploaded automatically ---------- */
+const IDB=(()=>{let db;const open=()=>db||(db=new Promise((ok,no)=>{try{const r=indexedDB.open('smartdent',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}catch(e){no(e)}}));
+ const tx=(m,f)=>open().then(d=>new Promise((ok,no)=>{const t=d.transaction('kv',m),q=f(t.objectStore('kv'));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)}));
+ const safe=p=>p.catch(()=>undefined);
+ return {get:k=>safe(tx('readonly',s=>s.get(k))),set:(k,v)=>safe(tx('readwrite',s=>s.put(v,k))),del:k=>safe(tx('readwrite',s=>s.delete(k))),clear:()=>safe(tx('readwrite',s=>s.clear()))}})();
+const isNet=e=>(typeof navigator!='undefined'&&navigator.onLine===false)||/failed to fetch|networkerror|network error|load failed|network request|fetch failed|timeout/i.test(String((e&&e.message)||e||''));
+let OFFL=0,OFFSV=0;
+function offState(on,saved){OFFL=on?1:0;if(saved!==undefined)OFFSV=saved;let b=$('offb');if(!OFFL&&!OFFSV){if(b)b.style.display='none';return}
+ if(!b){b=document.createElement('div');b.id='offb';b.setAttribute('role','status');b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:70;padding:6px 12px;font-size:13px;text-align:center;color:#fff;background:#b45309';document.body.appendChild(b)}
+ b.style.display='block';b.textContent=OFFL?'You are offline. You can keep working: changes are saved on this device and upload automatically when the internet is back.':'Uploading changes made offline...'}
+/* cached copies so the app can open and show the last loaded data with no internet */
+const _clin0=DB.clinics;DB.clinics=async function(){try{const r=await _clin0.apply(DB,arguments);IDB.set('clinics',r);return r}catch(e){if(isNet(e)){const c=await IDB.get('clinics');if(c&&c.length){offState(1);return c}}throw e}};
+const _prof0=DB.profile;DB.profile=async function(){try{const p=await _prof0.apply(DB,arguments);if(p)IDB.set('profile',p);return p}catch(e){if(isNet(e)){const c=await IDB.get('profile'),t=await DB.token().catch(()=>null);if(c&&t){offState(1);return c}}throw e}};
+const _load0=DB.loadClinicData;DB.loadClinicData=async function(cid,startup){try{const d=await _load0.apply(DB,arguments);if(startup)IDB.set('cache:'+cid,{...d,fin:undefined});return d}catch(e){if(startup&&isNet(e)){const c=await IDB.get('cache:'+cid);if(c){offState(1);return c}}throw e}};
+/* sync: when the internet is down the working copy is kept on the device ("dirty") and retried */
+let OFFCT=0;
+const offCache=()=>{clearTimeout(OFFCT);OFFCT=setTimeout(()=>{if(C&&S)IDB.set('cache:'+C.id,{patients:S.patients,dis:S.dis,proc:S.proc,fin:S.fin})},3000)};
+const _sync0=syncNow;syncNow=async function(){const cid=C&&C.id;try{await _sync0();if(cid){OFFSV=0;offState(OFFL&&!navigator.onLine?1:0);IDB.del('dirty:'+cid);offCache()}}
+ catch(e){if(cid&&isNet(e)){await IDB.set('dirty:'+cid,{patients:S.patients,dis:S.dis,proc:S.proc,fin:S.fin,ts:Date.now()});offState(1,1);return}throw e}};
+/* changes made while offline and still not uploaded are restored after a reload, then uploaded */
+const _lc0=loadClinic;loadClinic=async function(id){await _lc0.apply(this,arguments);const d=C&&await IDB.get('dirty:'+C.id);
+ if(d&&d.patients){S.patients=d.patients;S.patients.forEach(migrate);if(d.dis)S.dis=d.dis;if(d.proc)S.proc=d.proc;if(d.fin)S.fin=d.fin;offState(!navigator.onLine,1);sv()}};
+addEventListener('offline',()=>offState(1));
+addEventListener('online',()=>{offState(0,OFFSV);if(U&&C){sv();setTimeout(()=>{if(typeof refresh=='function')refresh()},4000)}});
+addEventListener('load',()=>{if(navigator.onLine===false)offState(1)});
+/* logging out wipes the saved copies from this device; warn first if something is not uploaded yet */
+async function offLogoutOk(){const d=C&&await IDB.get('dirty:'+C.id);if(d)return confirm('Some changes made offline have NOT been uploaded yet. Logging out now will delete them. Log out anyway?');return true}
+async function offWipe(){await IDB.clear()}
 function dash(){const P=S.patients,td=P.filter(p=>ds(p.arr)==ds(Date.now())),cnt=s=>P.filter(p=>p.st==s).length;
  const T=[['all','All Patients ('+P.length+')'],['today',"Today's Orders ("+td.length+')'],['new','New Order ('+cnt('new')+')'],['doctor','Seen by Doctor ('+cnt('doctor')+')'],['nurse','Seen by Nurse ('+cnt('nurse')+')']];
  let L=TAB=='all'?P:TAB=='today'?td:P.filter(p=>p.st==TAB);L=[...L].sort((a,b)=>a.arr-b.arr);
