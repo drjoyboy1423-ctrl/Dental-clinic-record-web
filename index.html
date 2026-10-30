@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dc2626"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no">
+<html lang="en"><head><meta charset="UTF-8"><script>try{var t=localStorage.getItem("dental_theme");if(t=="dark"||(t!="light"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}</script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dc2626"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no">
 <title>Professional Dental Care Center</title>
 <meta name="description" content="Dental clinic management: patients, appointments, invoices and records.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
@@ -64,6 +64,31 @@ header{padding-top:max(.75rem,env(safe-area-inset-top))}
 #bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 6px;font-size:11px;color:#6b7280;min-height:56px;background:none;border:0}
 #bnav button i{font-size:18px}#bnav button.on{color:var(--c)}
 @media (max-width:1023px){#bnav.on{display:flex}#v{padding-bottom:calc(80px + env(safe-area-inset-bottom))}#toast{bottom:calc(72px + env(safe-area-inset-bottom))!important}}
+
+/* settings segments */
+.segs{display:flex;flex-wrap:wrap;gap:8px}.seg{padding:9px 14px;border-radius:10px;border:1px solid #d1d5db;background:#fff;font-size:14px}.seg.on{background:var(--c);color:#fff;border-color:var(--c)}
+/* dark mode */
+html.dark{color-scheme:dark}
+html.dark body{background:#0b1220!important;color:#e2e8f0!important}
+html.dark .bg-white,html.dark aside,html.dark #bnav,html.dark .seg,html.dark .inp,html.dark select,html.dark input,html.dark textarea{background-color:#162033!important;color:#e2e8f0!important}
+html.dark .bg-gray-50,html.dark .hover\:bg-gray-50:hover{background-color:#1b2740!important}
+html.dark .bg-gray-100{background-color:#0b1220!important}
+html.dark .bg-gray-200,html.dark .hover\:bg-gray-200:hover,html.dark .hover\:bg-gray-300:hover{background-color:#2a3a57!important;color:#e2e8f0!important}
+html.dark .text-gray-800,html.dark .text-gray-700,html.dark .text-gray-900{color:#e2e8f0!important}
+html.dark .text-gray-600,html.dark .text-gray-500{color:#a5b4cc!important}
+html.dark .text-gray-400{color:#8091ab!important}
+html.dark .bg-red-50,html.dark .bg-green-50,html.dark .bg-yellow-50,html.dark .bg-pink-50{background-color:#1f2a3f!important}
+html.dark .bg-red-100,html.dark .bg-red-200{background-color:#4a1d24!important}html.dark .bg-green-100{background-color:#12392b!important}html.dark .bg-sky-100{background-color:#12344a!important}html.dark .bg-yellow-100{background-color:#43361a!important}
+html.dark .text-red-600,html.dark .text-red-700,html.dark .text-red-800,html.dark .text-red-900{color:#fca5a5!important}html.dark .text-green-600,html.dark .text-green-700{color:#86efac!important}html.dark .text-sky-700{color:#7dd3fc!important}html.dark .text-yellow-700,html.dark .text-amber-600{color:#fcd34d!important}html.dark .text-purple-600{color:#c4b5fd!important}
+html.dark .border,html.dark [class*="border-"],html.dark .inp,html.dark select,html.dark input,html.dark textarea,html.dark table td,html.dark table th,html.dark hr{border-color:#2f3f5c!important}
+html.dark table.rf-t th{background:#1b2740!important;color:#e2e8f0}
+html.dark .nv{color:#cbd5e1}html.dark .nv.on{color:#fff}
+html.dark #bnav{border-top-color:#2f3f5c}html.dark #bnav button{color:#94a3b8}html.dark #bnav button.on{color:#fff}
+html.dark ::placeholder{color:#7b8aa3}
+html.dark #login .bg-white{background-color:#162033!important}
+html.dark #md>div,html.dark #mb{background-color:#162033;color:#e2e8f0}
+html.dark [style*="background:#fff"],html.dark [style*="background: #fff"],html.dark [style*="background:white"]{background-color:#162033!important;color:#e2e8f0!important}
+html.dark img{filter:brightness(.92)}html.dark .xray,html.dark canvas{filter:none}
 </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -78,7 +103,7 @@ header{padding-top:max(.75rem,env(safe-area-inset-top))}
     <p id="lwel" class="mt-2" style="color:var(--c)">Welcome back! Please sign in to your account.</p></div>
    <label class="font-medium text-sm" style="color:var(--cd)">Clinic</label>
     <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)"></select>
-    <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button onclick="newClinicLogin()" class="underline">+ Create clinic</button></div>
+    <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button id="lnc" onclick="newClinicLogin()" class="underline" style="display:none">+ Create clinic</button></div>
     <label class="font-medium text-sm" style="color:var(--cd)">Username</label>
    <input id="lp" autocomplete="username" enterkeyhint="next" class="inp mt-1 mb-4" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Username or email" autocapitalize="none" autocorrect="off">
    <label class="font-medium text-sm" style="color:var(--cd)">Password</label>
@@ -104,7 +129,7 @@ header{padding-top:max(.75rem,env(safe-area-inset-top))}
   <header class="flex items-center gap-3 p-3">
    <button class="lg:hidden text-gray-600 px-2" onclick="tgl()"><i class="fa fa-bars"></i></button>
    <div class="relative w-full max-w-xs"><i class="fa fa-search absolute left-3 top-3 text-gray-500"></i><input id="q" type="search" enterkeyhint="search" autocomplete="off" oninput="Q=this.value;go('recent')" placeholder="Search patients" class="w-full bg-white rounded-md shadow pl-9 pr-3 py-2"></div>
-   <div class="ml-auto flex items-center gap-3"><div id="av" class="w-9 h-9 rounded-full bg-white overflow-hidden"></div><button id="calbtn" onclick="cycleCal()" class="text-xs border rounded-md px-2 py-1 bg-white text-gray-700 whitespace-nowrap" title="Switch between Ethiopian and Gregorian dates"></button><span id="un" class="text-red-500 text-sm"></span></div>
+   <div class="ml-auto flex items-center gap-3"><div id="av" class="w-9 h-9 rounded-full bg-white overflow-hidden"></div><button id="calbtn" onclick="go('settings')" class="border rounded-full w-9 h-9 bg-white text-gray-700" title="Settings" aria-label="Settings"><i class="fa fa-gear"></i></button><span id="un" class="text-red-500 text-sm"></span></div>
   </header>
   <main id="v" class="flex-1 overflow-auto p-3 md:p-6"></main>
  </div></div>
@@ -184,7 +209,7 @@ const DB=(()=>{
 <!-- app code, in load order -->
 <script>const bad=m=>{alert(m);return false};
 const $=i=>document.getElementById(i),H=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const NAV=[['dash','Dashboard','fa-table-columns'],['appt','Appointment','fa-calendar-check'],['recent','Recent Patient','fa-user-clock'],['card','New Patient Card','fa-id-card'],['ran','Analytics','fa-chart-line'],['rinv','Invoice Manager','fa-file-invoice-dollar'],['rpr','Print Center','fa-print'],['fin','Finance','fa-sack-dollar'],['lab','Finished Laboratory','fa-flask'],['proc','Procedure','fa-tooth'],['users','Users','fa-users'],['clinics','Clinics','fa-hospital'],['crep','All Clinics Report','fa-chart-column'],['dis','Disease','fa-virus'],['profile','Profile','fa-user']];
+const NAV=[['dash','Dashboard','fa-table-columns'],['appt','Appointment','fa-calendar-check'],['recent','Recent Patient','fa-user-clock'],['card','New Patient Card','fa-id-card'],['ran','Analytics','fa-chart-line'],['rinv','Invoice Manager','fa-file-invoice-dollar'],['rpr','Print Center','fa-print'],['fin','Finance','fa-sack-dollar'],['lab','Finished Laboratory','fa-flask'],['proc','Procedure','fa-tooth'],['users','Users','fa-users'],['clinics','Clinics','fa-hospital'],['crep','All Clinics Report','fa-chart-column'],['dis','Disease','fa-virus'],['profile','Profile','fa-user'],['settings','Settings','fa-gear']];
 const DIS="Chronic Apical Periodontitis,Chronic Periodontitis,Pulpal Necrosis,Acute Apical Periodontitis (AAP),Dental Caries,Acute Apical Abscess (AAA),Acute Periodontal Abscess (APA),Caries Lesion,Acute Pulpitis,Chronic Pulpitis,Cellulitis,Ameloblastoma,Enamel Imperfecta,Gingivitis,Epulis,Cystic Lesion,Granuloma,Periodontitis,Halitosis,Hypersensitivity,Endo-Perio Lesion,Perio-Endo Lesion,Enamel Hypoplasia,Periapical Lesion,Reversible pulpitis,Retained primary teeth,Pericoronitis,Root fracture,Intrusion luxation,Extrusion luxation,Lateral luxation,Crown fracture".split(',');
 const PRO=[['Scaling & Polishing',1500],['Composite Filling',2000],['Extraction',1000],['Root Canal Treatment',5000],['Orthodontic (Tradition Brace) Lower',16000],['Crown',6000]];
 const MEDS=['Amoxicillin 500mg','Metronidazole 400mg','Ibuprofen 400mg','Paracetamol 500mg','Diclofenac 50mg','Chlorhexidine Mouthwash','Augmentin 625mg'];
@@ -246,7 +271,7 @@ function hdr(){calBtn();un.textContent=U.name;av.innerHTML=U.avatar?`<img class=
  if(isHQ()){const o=$('clsw');if(o&&o.parentElement&&o.parentElement.id!='clh')o.parentElement.remove();$('clh').innerHTML=logoH(HQ,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words" style="color:var(--cd)">${H(HQ.name)}</div><div class="text-[11px] text-gray-500">Welcome, ${H(U.name)}</div></div>`;
   $('clh').insertAdjacentHTML('afterend',CL.length>1?`<div class="mt-3 text-left"><div class="text-[11px] text-gray-500 mb-0.5">Viewing clinic</div><select id="clsw" onchange="swCh(this.value)" class="w-full text-sm bg-white border rounded px-2 py-1.5" aria-label="View clinic data">${CL.map(c=>`<option value="${H(c.id)}" ${c.id==C.id?'selected':''}>${H(c.name)}</option>`).join('')}</select></div>`:'');return}
  $('clh').innerHTML=logoH(C,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words">${H(C.name)}</div><div class="text-[11px] text-gray-500">${TYPE(C.type)}</div></div>`}
-function lcInit(){const sel=lsGet(K.s);lc.innerHTML=`<option value="__hq" ${sel=='__hq'?'selected':''}>${H(HQ.name)} - Administrator (all clinics)</option>`+CL.map(c=>`<option value="${c.id}" ${c.id==sel?'selected':''}>${H(c.name)} (${c.type=='government'?'Government':'Private'})</option>`).join('');selC()}
+function lcInit(){const sel=lsGet(K.s);lc.innerHTML=`<option value="__hq" ${sel=='__hq'?'selected':''}>${H(HQ.name)} - Administrator (all clinics)</option>`+CL.map(c=>`<option value="${c.id}" ${c.id==sel?'selected':''}>${H(c.name)} (${c.type=='government'?'Government':'Private'})</option>`).join('');selC();const _n=$('lnc');if(_n)_n.style.display=CL.length?'none':''}
 function selC(){const hq=lc.value=='__hq',c=hq?HQ:(CL.find(x=>x.id==lc.value)||CL[0]);const r=document.documentElement.style,col=c.color;r.setProperty('--c',col);r.setProperty('--cd',`color-mix(in srgb,${col} 60%,black)`);r.setProperty('--cl',`color-mix(in srgb,${col} 10%,white)`);$('lb').innerHTML=logoH(c,'w-16 h-16 mx-auto');$('lwel').textContent=hq?'Welcome, Administrator! Sign in to manage all clinics.':'Welcome back! Please sign in to your account.'}
 async function login(){le.classList.add('hidden');const b=$('lbtn');if(b.disabled)return;b.disabled=true;
  try{if(!lp.value.trim()||!lw.value)throw new Error('Enter your username and password.');const u=await DB.signIn(lp.value,lw.value),sel=lc.value,hq=sel=='__hq',cid=hq?(CL.some(c=>c.id==lsGet(K.cc))?lsGet(K.cc):(CL[0]||{}).id):sel;if(hq&&u.role!='admin'){await DB.signOut();throw new Error('Only administrators can sign in here. Choose your clinic.')}if(u.role!='admin'&&u.clinic!=cid){await DB.signOut();throw new Error('This account does not belong to the selected clinic.')}
@@ -290,8 +315,8 @@ async function cmSave(auth){const t=CT;if(!t.name||!t.name.trim())return bad('Cl
   try{await CK(t)}finally{if(auth)await DB.signOut()}}catch(e){alert(e.message||'Could not save the clinic.');if(sb)sb.disabled=false}}
 async function mkClinic(t){const n={...t,id:'c'+Date.now()};delete n.mu;delete n.mp;await DB.saveClinic(n);if(t.mu&&t.mp){try{await DB.fn('create',{username:t.mu.trim(),password:t.mp.trim(),role:'manager',clinic:n.id,name:'Manager'})}catch(e){alert('The clinic was created, but the manager account failed: '+e.message)}}CL.push(n);return n}
 function newClinicLogin(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{const n=await mkClinic(t);lcInit();lc.value=n.id;selC();cl()},1)}
-function addC(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{await mkClinic(t);cl();go('clinics')})}
-function edC(id){const c=CL.find(x=>x.id==id);clinicModal(c,async t=>{const n={...c,...t};await DB.saveClinic(n);Object.assign(c,t);if(c.id==C.id){setTheme(C);hdr()}cl();go('clinics')})}
+function addC(){if(!U||U.role!='admin')return bad('Only the system administrator can create a clinic.');clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{await mkClinic(t);cl();go('clinics')})}
+function edC(id){if(!U||U.role!='admin')return bad('Only the system administrator can edit a clinic.');const c=CL.find(x=>x.id==id);clinicModal(c,async t=>{const n={...c,...t};await DB.saveClinic(n);Object.assign(c,t);if(c.id==C.id){setTheme(C);hdr()}cl();go('clinics')})}
 /* admin: switch the clinic whose data is shown, staying on the same page */
 async function swCh(id){if(id==C.id)return;try{await SQ}catch(e){}try{const v=V;await loadClinic(id);setCur();hdr();go(['patient','card'].includes(v)?'recent':v)}catch(e){alert(e.message);hdr()}}
 async function swC(id){try{await SQ}catch(e){}try{await loadClinic(id);setCur();hdr();go('dash')}catch(e){alert(e.message)}}
@@ -303,14 +328,14 @@ function tgl(){const s=$('sb');if(innerWidth>=1024){s.classList.toggle('lg:hidde
 function go(v,id){if(v!='patient'&&!(RN[U.role]||RN.reception).includes(v))v='dash';V=v;if(id){PID=id;SK='rec';MENU=0}
  $('nav').innerHTML=NAV.filter(n=>(RN[U.role]||RN.reception).includes(n[0])).map(n=>`<div class="nv ${V==n[0]?'on':''}" onclick="go('${n[0]}')"><i class="fa ${n[2]} w-5"></i>${n[1]}</div>`).join('');
  if(innerWidth<1024){$('sb').classList.add('-translate-x-full');$('ov').classList.add('hidden')}
- const f={dash,appt,recent,card:cardv,ran:analytics,rinv:invMgr,rpr:printCenter,fin:finance,lab,proc,users,clinics,crep:clinicsReport,dis,profile,patient}[v];$('v').innerHTML=f();}
+ const f={dash,appt,recent,card:cardv,ran:analytics,rinv:invMgr,rpr:printCenter,fin:finance,lab,proc,users,clinics,crep:clinicsReport,dis,profile,settings:settingsPage,patient}[v];$('v').innerHTML=f();}
 const card=(h,b)=>`<div class="bg-white rounded-xl shadow p-4 md:p-6 mb-4">${h}${b}</div>`;
 const hd=(t,btn)=>`<div class="flex justify-between items-center mb-4 gap-2"><h2 class="text-2xl font-bold">${t}</h2>${btn||''}</div>`;
 const gb=(l,a)=>`<button onclick="${a}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm">${l}</button>`;
 const bb=(l,a)=>`<button onclick="${a}" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium">${l}</button>`;
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):'';
 const canAdd=()=>!!U&&(U.role=='reception'||U.role=='manager'),canDel=()=>!!U&&(U.role=='admin'||U.role=='manager'||U.role=='reception');
-const RN={admin:['dash','appt','recent','ran','rinv','rpr','fin','lab','proc','users','clinics','crep','dis','profile'],manager:['dash','appt','recent','card','ran','rinv','rpr','fin','lab','proc','users','dis','profile'],doctor:['dash','appt','recent','lab','proc','dis','profile'],nurse:['dash','appt','recent','lab','profile'],reception:['dash','appt','recent','card','ran','rinv','rpr','profile']},RA=['appt','prof','inv','cred'];
+const RN={admin:['dash','appt','recent','ran','rinv','rpr','fin','lab','proc','users','clinics','crep','dis','profile','settings'],manager:['dash','appt','recent','card','ran','rinv','rpr','fin','lab','proc','users','dis','profile','settings'],doctor:['dash','appt','recent','lab','proc','dis','profile','settings'],nurse:['dash','appt','recent','lab','profile','settings'],reception:['dash','appt','recent','card','ran','rinv','rpr','profile','settings']},RA=['appt','prof','inv','cred'];
 const ROLEF={admin:'ADMINISTRATION',manager:'MANAGEMENT',doctor:'DENTISTRY',nurse:'NURSING',reception:'RECEPTION'};
 const TOOTH=c=>`<svg viewBox="0 0 100 100" class="${c}" fill="#fff"><path d="M50 14C38 8 22 16 24 36c1 12 6 20 8 34 1.5 11 5 18 9 18 5 0 4-16 9-16s4 16 9 16c4 0 7.5-7 9-18 2-14 7-22 8-34C78 16 62 8 50 14z"/><path fill="#ff2a2a" d="M76 6l2.5 6 6 2.5-6 2.5L76 23l-2.5-6-6-2.5 6-2.5z"/></svg>`;
 const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return Math.floor(m/60)+'h '+m%60+'m ago'};
@@ -376,6 +401,24 @@ addEventListener('load',()=>{if(navigator.onLine===false)offState(1)});
 /* logging out wipes the saved copies from this device; warn first if something is not uploaded yet */
 async function offLogoutOk(){const d=C&&await IDB.get('dirty:'+C.id);if(d)return confirm('Some changes made offline have NOT been uploaded yet. Logging out now will delete them. Log out anyway?');return true}
 async function offWipe(){await IDB.clear()}
+/* ---------- Settings: appearance (dark mode), calendar, sync, install, account ---------- */
+const THK='dental_theme';
+const thGet=()=>{try{const v=localStorage.getItem(THK);return v=='dark'||v=='light'?v:'auto'}catch(e){return 'auto'}};
+function thApply(){const m=thGet(),dk=m=='dark'||(m=='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dk);try{if(typeof mobTheme=='function')mobTheme()}catch(e){}}
+function setThemeMode(m){try{m=='auto'?localStorage.removeItem(THK):localStorage.setItem(THK,m)}catch(e){}thApply();if(V=='settings')go('settings')}
+function setCal(m){CALM_=m;try{localStorage.setItem(CAL_KEY,m)}catch(e){}go('settings')}
+calBtn=function(){};
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(thGet()=='auto')thApply()})}catch(e){}
+const _mt0=mobTheme;mobTheme=function(){_mt0();const m=document.querySelector('meta[name=theme-color]');if(m&&document.documentElement.classList.contains('dark'))m.content='#0f172a'};
+const segBtn=(on,act,ic,l)=>`<button onclick="${act}" class="seg ${on?'on':''}"><i class="fa ${ic} mr-1"></i>${l}</button>`;
+function settingsPage(){const tm=thGet(),cm=CALM_,inst=(typeof INSTALL_EV!='undefined'&&INSTALL_EV)||(typeof isIOS=='function'&&isIOS()&&!isStandalone());
+ return hd('Settings')+
+ card('<h3 class="font-bold mb-1"><i class="fa fa-moon mr-2"></i>Appearance</h3>',`<p class="text-sm text-gray-500 mb-3">Dark mode is easier on the eyes in a dim room. Automatic follows your phone setting.</p><div class="segs">${segBtn(tm=='light',"setThemeMode('light')",'fa-sun','Light')}${segBtn(tm=='dark',"setThemeMode('dark')",'fa-moon','Dark')}${segBtn(tm=='auto',"setThemeMode('auto')",'fa-circle-half-stroke','Automatic')}</div>`)+
+ card('<h3 class="font-bold mb-1"><i class="fa fa-calendar-days mr-2"></i>Calendar</h3>',`<p class="text-sm text-gray-500 mb-3">How dates are shown and entered across the app.</p><div class="segs">${segBtn(cm=='ec',"setCal('ec')",'fa-calendar','Ethiopian (EC)')}${segBtn(cm=='gc',"setCal('gc')",'fa-calendar','Gregorian (GC)')}${segBtn(cm=='both',"setCal('both')",'fa-calendar-plus','EC + GC')}</div>`)+
+ card('<h3 class="font-bold mb-1"><i class="fa fa-mobile-screen mr-2"></i>App</h3>',`<div class="flex flex-wrap gap-2">${inst?'<button onclick="installApp()" class="px-4 py-2 rounded-md bg-gray-200 text-sm"><i class="fa fa-download mr-1"></i>Install on this phone</button>':''}<button onclick="setSync()" class="px-4 py-2 rounded-md bg-gray-200 text-sm"><i class="fa fa-rotate mr-1"></i>Sync data now</button><button onclick="go('profile')" class="px-4 py-2 rounded-md bg-gray-200 text-sm"><i class="fa fa-user mr-1"></i>My profile and password</button></div><p class="text-xs text-gray-500 mt-3">Signed in as <b>${H(U.name)}</b> (${H(U.role)})${C?' &middot; '+H(isHQ()?HQ.name:C.name):''}. ${navigator.onLine===false?'You are offline.':'Online.'}</p>`)+
+ card('<h3 class="font-bold mb-1"><i class="fa fa-right-from-bracket mr-2"></i>Session</h3>','<button onclick="logout()" class="px-4 py-2 rounded-md bg-red-600 text-white text-sm">Log out</button><p class="text-xs text-gray-500 mt-2">Logging out also removes the offline copy of patient data from this device.</p>')}
+async function setSync(){try{await SQ;if(typeof refresh=='function')await refresh();toast('Up to date',1)}catch(e){toast('Could not sync: '+(e.message||e))}}
+thApply();
 function dash(){const P=S.patients,td=P.filter(p=>ds(p.arr)==ds(Date.now())),cnt=s=>P.filter(p=>p.st==s).length;
  const T=[['all','All Patients ('+P.length+')'],['today',"Today's Orders ("+td.length+')'],['new','New Order ('+cnt('new')+')'],['doctor','Seen by Doctor ('+cnt('doctor')+')'],['nurse','Seen by Nurse ('+cnt('nurse')+')']];
  let L=TAB=='all'?P:TAB=='today'?td:P.filter(p=>p.st==TAB);L=[...L].sort((a,b)=>a.arr-b.arr);
@@ -515,18 +558,23 @@ function patient(){const p=gp();if(!p)return recent();const rc=U.role=='receptio
  <div class="bg-white rounded-lg shadow p-5 flex-1 w-full min-h-[420px]">${sec(p)}</div></div>`}
 function fin(){const p=gp();p.fin=!p.fin;sv();go('patient')}
 /* ---------- Recent Patients: search + filters, sorting, exports and a visual summary of the filtered patients ---------- */
-let PF={sex:'',amin:'',amax:'',st:'',doc:'',cs:'',dx:'',reg:'all',from:'',to:'',sort:'new',chart:0};
+let PF={sex:'',amin:'',amax:'',st:'',pay:'',doc:'',cs:'',dx:'',reg:'all',from:'',to:'',sort:'new',chart:0};
 const PF_REG=[['all','Any time'],['today','Today'],['w7','Last 7 days'],['m30','Last 30 days'],['m90','Last 90 days'],['yr','This year']];
 const PF_ST=[['','Any status'],['open','Not finished'],['fin','Finished'],['due','Has unpaid balance'],['norec','No dental record yet']];
+const PF_PAY=[['','Any payment'],['paid','Fully paid'],['cash','Paid in cash'],['rem','Has remaining balance'],['part','Part-paid (remaining)'],['credit','On credit (nothing paid yet)']];
 const PF_SORT=[['new','Newest first'],['old','Oldest first'],['name','Name A - Z'],['card','Card number'],['age','Age (youngest)'],['bal','Highest balance']];
 const pfDigits=s=>String(s||'').replace(/\D/g,'');
 const pfBal=()=>{const m={};allInv().forEach(r=>{m[r.p.id]=(m[r.p.id]||0)+r.bal});return m};
+const pfPayM=()=>{const m={};allInv().forEach(r=>{const o=m[r.p.id]||(m[r.p.id]={t:0,paid:0,bal:0,cash:0,n:0});o.n++;o.t+=r.t;o.paid+=r.paid;o.bal+=r.bal;payEvents(r).forEach(y=>{if(/^cash$/i.test(y.method))o.cash+=y.amt})});return m};
+const pfPayOk=(k,o)=>{if(!k)return true;if(!o||!o.n)return false;return k=='paid'?o.bal<=.005:k=='cash'?o.cash>.005:k=='rem'?o.bal>.005:k=='part'?(o.bal>.005&&o.paid>.005):o.bal>.005&&o.paid<=.005};
 const pfDx=p=>[...new Set((p.d.rec||[]).map(r=>r.finding).filter(Boolean))];
 const pfCs=p=>[...new Set((p.d.rec||[]).map(r=>r.plancat).filter(Boolean))];
 const pfLim=k=>({all:0,today:sod(NOW()),w7:NOW()-7*DAY,m30:NOW()-30*DAY,m90:NOW()-90*DAY,yr:new Date(new Date().getFullYear(),0,1).getTime()})[k]||0;
-const pfActive=()=>(Q.trim()?1:0)+['sex','amin','amax','st','doc','cs','dx'].filter(k=>PF[k]!=='').length+(PF.reg!='all'?1:0)+(PF.from?1:0)+(PF.to?1:0);
+const pfActive=()=>(Q.trim()?1:0)+['sex','amin','amax','st','pay','doc','cs','dx'].filter(k=>PF[k]!=='').length+(PF.reg!='all'?1:0)+(PF.from?1:0)+(PF.to?1:0);
 function pfList(bal){bal=bal||pfBal();const q=Q.trim().toLowerCase(),qd=pfDigits(Q),lim=pfLim(PF.reg),t0=PF.from?new Date(PF.from+'T00:00:00').getTime():0,t1=PF.to?new Date(PF.to+'T00:00:00').getTime()+DAY:0;
+ const pm=PF.pay?pfPayM():null;
  const l=S.patients.filter(p=>{
+  if(PF.pay&&!pfPayOk(PF.pay,pm[p.id]))return false;
   if(q){const hay=(p.name+' '+p.card+' '+p.phone+' '+(p.doc||'')+' '+(p.branch||'')).toLowerCase();if(!hay.includes(q)&&!(qd.length>=4&&pfDigits(p.phone).includes(qd.slice(-9))))return false}
   if(PF.sex&&p.sex!=PF.sex)return false;const a=+p.age;
   if(PF.amin!==''&&!(a>=+PF.amin))return false;if(PF.amax!==''&&!(a<=+PF.amax))return false;
@@ -550,14 +598,14 @@ function pfSummaryHtml(l,bal){const d=pfSummary(l,bal),blk=(t,items)=>`<div clas
 function pfRows(l,bal){return l.map(p=>[p.card,p.name,p.sex,p.age,p.phone,p.doc||'',fd(p.date),pfDx(p).join('; '),bal[p.id]||0])}
 const PF_HEAD=['Card','Name','Sex','Age','Phone','Doctor','Registered','Diagnosis','Balance'];
 function pfCsv(){const b=pfBal();csvDl('patients',PF_HEAD,pfRows(pfList(b),b))}
-function pfPrint(){const b=pfBal(),l=pfList(b),f=[Q.trim()&&'search "'+Q.trim()+'"',PF.from&&'from '+fdate(PF.from),PF.to&&'to '+fdate(PF.to),PF.sex,PF.st&&(PF_ST.find(x=>x[0]==PF.st)||[])[1],PF.doc,PF.cs,PF.dx].filter(Boolean).join(', ');
+function pfPrint(){const b=pfBal(),l=pfList(b),f=[Q.trim()&&'search "'+Q.trim()+'"',PF.from&&'from '+fdate(PF.from),PF.to&&'to '+fdate(PF.to),PF.sex,PF.st&&(PF_ST.find(x=>x[0]==PF.st)||[])[1],PF.pay&&(PF_PAY.find(x=>x[0]==PF.pay)||[])[1],PF.doc,PF.cs,PF.dx].filter(Boolean).join(', ');
  printHtml('Patients',docHead('Patient List',H(l.length+' patients'+(f?' - '+f:'')))+tbl2(PF_HEAD,pfRows(l,b).map(r=>r.map((v,i)=>i==8?ETB(v):H(v))),null,[8])+(PF.chart?'<h2>Summary</h2>'+pfSummaryPrint(l,b):''))}
 function pfSummaryPrint(l,b){const d=pfSummary(l,b),t=(n,a)=>a.length?`<div class="blk"><b>${n}</b>${tbl2(['Item','Patients'],a.map(x=>[H(x[0]),x[1]]),null,[1])}</div>`:'';return t('Sex',d.sex)+t('Age groups',d.age)+t('Top diagnoses',d.dx)+t('Case types',d.cs)+t('New patients, last 6 months',d.mo)}
 function pfSet(k,v){PF[k]=v;pfUp()}
 function pfDt(k){const e=$('pf_'+k),w=e&&e.closest('.rf-dt');if(w)w.dataset.un='';PF[k]=e?e.value:'';pfUp()}
 function pfDtClr(k){const w=$('pf_'+k+'w');if(w)w.dataset.un='1';PF[k]='';pfUp()}
 const pfDtF=(k,t)=>`<div id="pf_${k}w" class="rf-dt" data-un="${PF[k]?'':'1'}"><label class="block text-xs font-medium text-gray-600 mb-1">${t}<span class="rf-un">any date</span><a class="rf-clr" onclick="pfDtClr('${k}')">clear</a></label>${dateField('pf_'+k,PF[k]||undefined,"pfDt('"+k+"')")}</div>`;
-function pfClear(){PF={sex:'',amin:'',amax:'',st:'',doc:'',cs:'',dx:'',reg:'all',from:'',to:'',sort:PF.sort,chart:PF.chart};Q='';const q=$('q');if(q)q.value='';go('recent')}
+function pfClear(){PF={sex:'',amin:'',amax:'',st:'',pay:'',doc:'',cs:'',dx:'',reg:'all',from:'',to:'',sort:PF.sort,chart:PF.chart};Q='';const q=$('q');if(q)q.value='';go('recent')}
 function pfRes(){const bal=pfBal(),b=bal,l=pfList(bal),n=pfActive(),can=canDel();
  const rows=l.map(p=>`<tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="go('patient','${p.id}')"><td class="p-2">${H(p.card)}</td><td><div class="flex items-center gap-2">${ph(p,'w-7 h-7')}<span>${H(p.name)}</span></div></td><td class="hidden sm:table-cell">${H(p.sex||'')} ${H(p.age||'')}</td><td>${telA(p.phone)}</td><td class="hidden md:table-cell">${H(p.doc||'')}</td><td>${ds(p.date)}</td><td class="hidden sm:table-cell text-right">${bal[p.id]>.005?`<span class="text-rose-600">${ETB(bal[p.id])}</span>`:''}</td><td class="text-rose-600" ${can?`onclick="event.stopPropagation();delPat('${p.id}')"`:''}>${can?'<i class="fa fa-trash"></i>':''}</td></tr>`).join('');
  return `<div class="flex flex-wrap items-center justify-between gap-2 mb-2"><div class="text-sm text-gray-600"><b>${l.length}</b> of ${S.patients.length} patients${n?` <span class="text-xs">(${n} filter${n>1?'s':''} on)</span>`:''}</div><div class="flex flex-wrap gap-2"><button onclick="PF.chart=!PF.chart;pfUp()" class="px-3 py-1.5 rounded-md text-sm ${PF.chart?'bg-red-600 text-white':'bg-gray-200'}"><i class="fa fa-chart-pie mr-1"></i>Summary charts</button><button onclick="pfCsv()" class="bg-gray-200 px-3 py-1.5 rounded-md text-sm"><i class="fa fa-file-csv mr-1"></i>CSV</button><button onclick="asPdf('patients',pfPrint)" class="bg-gray-200 px-3 py-1.5 rounded-md text-sm"><i class="fa fa-file-pdf mr-1"></i>PDF</button><button onclick="pfPrint()" class="bg-gray-200 px-3 py-1.5 rounded-md text-sm"><i class="fa fa-print mr-1"></i>Print</button></div></div>
@@ -567,7 +615,7 @@ function recent(){const sel=(k,opts)=>`<select onchange="pfSet('${k}',this.value
   docs=[...new Set(S.patients.map(p=>p.doc).filter(Boolean))].sort(),dxs=[...new Set(S.patients.flatMap(pfDx))].sort(),n=pfActive(),lbl=t=>`<label class="block text-xs font-medium text-gray-600 mb-1">${t}</label>`;
  return hd('Recent Patients',canAdd()?gb('New Patient +','newPat()'):'')+
  `<details class="bg-white rounded-lg shadow mb-3" ${n?'open':''}><summary class="p-3 cursor-pointer font-medium"><i class="fa fa-filter mr-2 text-red-600"></i>Search filters <span id="pfcount" class="text-xs text-red-600 ml-1">${n?n+' on':''}</span></summary><div class="p-3 pt-0"><p class="text-xs text-gray-500 mb-3">The search box above finds name, card number, phone (any format) or doctor. Use these filters to narrow further.</p>
- <div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div>${lbl('Sex')}${sel('sex',[['','Any'],['Female','Female'],['Male','Male']])}</div><div>${lbl('Age from')}<input type="number" min="0" inputmode="numeric" class="inp" value="${H(PF.amin)}" oninput="pfSet('amin',this.value)"></div><div>${lbl('Age to')}<input type="number" min="0" inputmode="numeric" class="inp" value="${H(PF.amax)}" oninput="pfSet('amax',this.value)"></div><div>${lbl('Status')}${sel('st',PF_ST)}</div>
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div>${lbl('Sex')}${sel('sex',[['','Any'],['Female','Female'],['Male','Male']])}</div><div>${lbl('Age from')}<input type="number" min="0" inputmode="numeric" class="inp" value="${H(PF.amin)}" oninput="pfSet('amin',this.value)"></div><div>${lbl('Age to')}<input type="number" min="0" inputmode="numeric" class="inp" value="${H(PF.amax)}" oninput="pfSet('amax',this.value)"></div><div>${lbl('Status')}${sel('st',PF_ST)}</div><div>${lbl('Payment')}${sel('pay',PF_PAY)}</div>
  <div>${lbl('Doctor')}${sel('doc',[['','Any doctor'],...docs.map(d=>[d,d])])}</div><div>${lbl('Case type (Rx plan)')}${sel('cs',[['','Any case type'],...RXCAT.filter(Boolean).map(c=>[c,c])])}</div><div>${lbl('Diagnosis')}${sel('dx',[['','Any diagnosis'],...dxs.map(d=>[d,d])])}</div><div>${lbl('Registered')}${sel('reg',PF_REG)}</div>
  <div>${pfDtF('from','Registered from')}</div><div>${pfDtF('to','Registered to')}</div><div>${lbl('Sort by')}${sel('sort',PF_SORT)}</div><div class="flex items-end"><button onclick="pfClear()" class="px-3 py-2 rounded-md bg-gray-200 text-sm w-full"><i class="fa fa-xmark mr-1"></i>Clear all</button></div></div></div></details><div id="pfres">${pfRes()}</div>`}
 /* ---------- Comprehensive Dental Record: form definition (one source for the screen form, the print and the blank form) ----------
