@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dc2626"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no">
 <title>Professional Dental Care Center</title>
 <meta name="description" content="Dental clinic management: patients, appointments, invoices and records.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -42,6 +42,22 @@ table.rf-t{width:100%;border-collapse:collapse;min-width:520px}table.rf-t th,tab
 .rf-th.st-H{background:#dcfce7}.rf-th.st-C{background:#fecaca}.rf-th.st-F{background:#bfdbfe}.rf-th.st-Cr{background:#fde68a}.rf-th.st-RCT{background:#ddd6fe}.rf-th.st-I{background:#bbf7d0}.rf-th.st-M{background:#d1d5db}
 .rf-un{display:none;font-size:11px;color:#9ca3af;margin-left:6px}.rf-clr{display:inline;font-size:11px;color:#dc2626;margin-left:8px;cursor:pointer}.rf-dt[data-un="1"] .rf-un{display:inline}.rf-dt[data-un="1"] .rf-clr{display:none}
 .rc-b{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:#f3f4f6;border:1px solid #d1d5db;font-size:14px;cursor:pointer}.rc-b i{font-size:18px;color:var(--c,#dc2626)}
+
+/* ---- mobile ---- */
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
+button,a,label,select,summary,.nv,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#v,#mb,#nav{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#v{padding-bottom:calc(1rem + env(safe-area-inset-bottom))}
+header{padding-top:max(.75rem,env(safe-area-inset-top))}
+#sb{padding-bottom:env(safe-area-inset-bottom)}
+@media (pointer:coarse){button,select,.inp,.nv,summary{min-height:44px}.nv{padding-top:12px;padding-bottom:12px}input[type=checkbox],input[type=radio]{width:22px;height:22px}table td,table th{padding-top:10px;padding-bottom:10px}}
+@media (max-width:640px){
+ #md.flex{align-items:flex-end!important;padding:0!important}
+ #mb{border-radius:18px 18px 0 0!important;max-height:92vh!important;padding:16px 16px calc(16px + env(safe-area-inset-bottom))!important;max-width:none!important}
+ #mb .flex.justify-end{position:sticky;bottom:-16px;background:#fff;padding:10px 0;margin:0 -4px}
+ h2.text-2xl,h2.text-3xl{font-size:1.35rem}
+ .overflow-x-auto{-webkit-overflow-scrolling:touch}
+}
 </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -58,9 +74,9 @@ table.rf-t{width:100%;border-collapse:collapse;min-width:520px}table.rf-t th,tab
     <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)"></select>
     <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button onclick="newClinicLogin()" class="underline">+ Create clinic</button></div>
     <label class="font-medium text-sm" style="color:var(--cd)">Username</label>
-   <input id="lp" class="inp mt-1 mb-4" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Username or email" autocapitalize="none" autocorrect="off">
+   <input id="lp" autocomplete="username" enterkeyhint="next" class="inp mt-1 mb-4" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Username or email" autocapitalize="none" autocorrect="off">
    <label class="font-medium text-sm" style="color:var(--cd)">Password</label>
-   <div class="relative mt-1 mb-6"><input id="lw" type="password" class="inp" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Enter your password" onkeydown="if(event.key=='Enter')login()">
+   <div class="relative mt-1 mb-6"><input id="lw" type="password" autocomplete="current-password" enterkeyhint="go" class="inp" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Enter your password" onkeydown="if(event.key=='Enter')login()">
     <i class="fa fa-eye absolute right-3 top-3 cursor-pointer" style="color:var(--c)" onclick="lw.type=lw.type=='password'?'text':'password'"></i></div>
    <button id="lbtn" onclick="login()" class="lg w-full text-white font-semibold py-3 rounded-xl shadow"><i class="fa fa-right-to-bracket mr-2"></i>Sign In</button>
    <p class="text-xs text-center mt-3 text-gray-500"><button type="button" class="underline" style="color:var(--cd)" onclick="forgotPw()">Forgot your password? Send a reset link to my email</button></p><p id="le" class="text-sm text-center mt-3 hidden" style="color:var(--c)">Invalid username or password.</p>
@@ -81,7 +97,7 @@ table.rf-t{width:100%;border-collapse:collapse;min-width:520px}table.rf-t th,tab
  <div class="flex-1 flex flex-col min-w-0">
   <header class="flex items-center gap-3 p-3">
    <button class="lg:hidden text-gray-600 px-2" onclick="tgl()"><i class="fa fa-bars"></i></button>
-   <div class="relative w-full max-w-xs"><i class="fa fa-search absolute left-3 top-3 text-gray-500"></i><input id="q" oninput="Q=this.value;go('recent')" placeholder="Search patients" class="w-full bg-white rounded-md shadow pl-9 pr-3 py-2"></div>
+   <div class="relative w-full max-w-xs"><i class="fa fa-search absolute left-3 top-3 text-gray-500"></i><input id="q" type="search" enterkeyhint="search" autocomplete="off" oninput="Q=this.value;go('recent')" placeholder="Search patients" class="w-full bg-white rounded-md shadow pl-9 pr-3 py-2"></div>
    <div class="ml-auto flex items-center gap-3"><div id="av" class="w-9 h-9 rounded-full bg-white overflow-hidden"></div><button id="calbtn" onclick="cycleCal()" class="text-xs border rounded-md px-2 py-1 bg-white text-gray-700 whitespace-nowrap" title="Switch between Ethiopian and Gregorian dates"></button><span id="un" class="text-red-500 text-sm"></span></div>
   </header>
   <main id="v" class="flex-1 overflow-auto p-3 md:p-6"></main>
@@ -291,6 +307,22 @@ const RN={admin:['dash','appt','recent','ran','rinv','rpr','fin','lab','proc','u
 const ROLEF={admin:'ADMINISTRATION',manager:'MANAGEMENT',doctor:'DENTISTRY',nurse:'NURSING',reception:'RECEPTION'};
 const TOOTH=c=>`<svg viewBox="0 0 100 100" class="${c}" fill="#fff"><path d="M50 14C38 8 22 16 24 36c1 12 6 20 8 34 1.5 11 5 18 9 18 5 0 4-16 9-16s4 16 9 16c4 0 7.5-7 9-18 2-14 7-22 8-34C78 16 62 8 50 14z"/><path fill="#ff2a2a" d="M76 6l2.5 6 6 2.5-6 2.5L76 23l-2.5-6-6-2.5 6-2.5z"/></svg>`;
 const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return Math.floor(m/60)+'h '+m%60+'m ago'};
+/* ---------- Mobile enhancements ---------- */
+/* 1. The phone's Back button / swipe-back goes to the previous page (or closes an open window) instead of leaving the app. */
+let MOBK='',MOBSKIP=0,MOBPOP=0;
+const _go0=go;
+go=function(v,id){const r=_go0.apply(this,arguments);try{
+  if(innerWidth<1024){const s=$('sb');if(s&&!s.classList.contains('-translate-x-full')){s.classList.add('-translate-x-full');const o=$('ov');if(o)o.classList.add('hidden')}}
+  if(!MOBPOP&&U){const k=V+'|'+(V=='patient'||V=='card'?(PID||''):'');if(k!=MOBK){try{history.pushState({k},'')}catch(e){}MOBK=k}}}catch(e){}return r};
+addEventListener('popstate',e=>{if(MOBSKIP){MOBSKIP=0;return}if(!U||!C)return;
+  const m=$('md');if(m&&m.classList.contains('flex')){cl();MOBSKIP=1;history.forward();return}
+  const k=e.state&&e.state.k;if(!k)return;const[v,id]=k.split('|');MOBPOP=1;MOBK=k;try{_go0(v,id||undefined)}finally{MOBPOP=0}});
+try{history.replaceState({k:'dash|'},'');MOBK='dash|'}catch(e){}
+/* 2. Browser bar / status bar takes the clinic colour (admin: head-office colour). */
+function mobTheme(){let m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}m.content=(C&&(isHQ()?HQ.color:C.color))||'#dc2626'}
+const _st0=setTheme;setTheme=function(c){_st0(c);try{mobTheme()}catch(e){}};
+/* 3. Tap a phone number to call it. */
+const telA=(n,cls)=>{const d=String(n||'').replace(/[^\d+]/g,'');return d?`<a href="tel:${H(d)}" onclick="event.stopPropagation()" class="${cls||''}" style="color:inherit;text-decoration:none">${H(n)}</a>`:H(n||'')};
 function dash(){const P=S.patients,td=P.filter(p=>ds(p.arr)==ds(Date.now())),cnt=s=>P.filter(p=>p.st==s).length;
  const T=[['all','All Patients ('+P.length+')'],['today',"Today's Orders ("+td.length+')'],['new','New Order ('+cnt('new')+')'],['doctor','Seen by Doctor ('+cnt('doctor')+')'],['nurse','Seen by Nurse ('+cnt('nurse')+')']];
  let L=TAB=='all'?P:TAB=='today'?td:P.filter(p=>p.st==TAB);L=[...L].sort((a,b)=>a.arr-b.arr);
@@ -420,7 +452,7 @@ const gp=()=>S.patients.find(p=>p.id==PID);
 function patient(){const p=gp();if(!p)return recent();const rc=U.role=='reception';if(rc&&!RA.includes(SK))SK='appt';
  const bi=[['Card No',p.card],['Sex',p.sex],['Date of Birth',p.dob?fdate(p.dob):''],['Phone',p.phone]].map(x=>`<div class="mb-2"><b class="text-sm">${x[0]}</b><div>${H(x[1])}</div></div>`).join('');
  return `<div class="flex flex-col md:flex-row gap-5 items-start"><div class="bg-white rounded-lg shadow p-4 w-full md:w-64 text-center shrink-0 relative">
- <label class="block w-20 h-20 mx-auto mb-2 rounded-full bg-red-100 border-2 border-red-300 overflow-hidden cursor-pointer">${p.photo?`<img src="${p.photo}" class="w-full h-full object-cover">`:`<div class="h-full flex flex-col items-center justify-center text-red-500 text-[10px]"><i class="fa fa-camera text-lg"></i>Photo</div>`}<input type="file" accept="image/*" class="hidden" onchange="upPh(event)"></label>${photoBtns('upPh')}<h3 class="font-bold text-lg leading-tight">${H(p.name)}</h3><div class="text-gray-600 text-sm my-1">${H(p.phone)}<br>${p.age} yrs<br>Branch: ${H(p.branch)}</div>
+ <label class="block w-20 h-20 mx-auto mb-2 rounded-full bg-red-100 border-2 border-red-300 overflow-hidden cursor-pointer">${p.photo?`<img src="${p.photo}" class="w-full h-full object-cover">`:`<div class="h-full flex flex-col items-center justify-center text-red-500 text-[10px]"><i class="fa fa-camera text-lg"></i>Photo</div>`}<input type="file" accept="image/*" class="hidden" onchange="upPh(event)"></label>${photoBtns('upPh')}<h3 class="font-bold text-lg leading-tight">${H(p.name)}</h3><div class="text-gray-600 text-sm my-1">${telA(p.phone)}<br>${p.age} yrs<br>Branch: ${H(p.branch)}</div>
  <div class="bg-red-100 border border-red-300 rounded text-red-800 text-xs p-2 my-2"><b>Last Doctor:</b><br>${H(p.doc)}</div><div class="text-sm text-gray-600 mb-3">${fdate(p.date)}</div>
  <div class="text-left bg-white shadow-inner rounded p-3 h-32 overflow-auto mb-3"><b>Basic Information</b>${bi}</div>
  <div class="text-sm font-bold mb-3">Finished: <button onclick="fin()" class="ml-2 text-white text-sm px-4 py-1 rounded-full ${p.fin?'bg-green-500':'bg-red-500'}">${p.fin?'On':'Off'}</button></div>
@@ -430,7 +462,7 @@ function patient(){const p=gp();if(!p)return recent();const rc=U.role=='receptio
  <div class="bg-white rounded-lg shadow p-5 flex-1 w-full min-h-[420px]">${sec(p)}</div></div>`}
 function fin(){const p=gp();p.fin=!p.fin;sv();go('patient')}
 /* ---------- Recent Patients: search + filters, sorting, exports and a visual summary of the filtered patients ---------- */
-let PF={sex:'',amin:'',amax:'',st:'',doc:'',cs:'',dx:'',reg:'all',sort:'new',chart:0};
+let PF={sex:'',amin:'',amax:'',st:'',doc:'',cs:'',dx:'',reg:'all',from:'',to:'',sort:'new',chart:0};
 const PF_REG=[['all','Any time'],['today','Today'],['w7','Last 7 days'],['m30','Last 30 days'],['m90','Last 90 days'],['yr','This year']];
 const PF_ST=[['','Any status'],['open','Not finished'],['fin','Finished'],['due','Has unpaid balance'],['norec','No dental record yet']];
 const PF_SORT=[['new','Newest first'],['old','Oldest first'],['name','Name A - Z'],['card','Card number'],['age','Age (youngest)'],['bal','Highest balance']];
@@ -439,8 +471,8 @@ const pfBal=()=>{const m={};allInv().forEach(r=>{m[r.p.id]=(m[r.p.id]||0)+r.bal}
 const pfDx=p=>[...new Set((p.d.rec||[]).map(r=>r.finding).filter(Boolean))];
 const pfCs=p=>[...new Set((p.d.rec||[]).map(r=>r.plancat).filter(Boolean))];
 const pfLim=k=>({all:0,today:sod(NOW()),w7:NOW()-7*DAY,m30:NOW()-30*DAY,m90:NOW()-90*DAY,yr:new Date(new Date().getFullYear(),0,1).getTime()})[k]||0;
-const pfActive=()=>(Q.trim()?1:0)+['sex','amin','amax','st','doc','cs','dx'].filter(k=>PF[k]!=='').length+(PF.reg!='all'?1:0);
-function pfList(bal){bal=bal||pfBal();const q=Q.trim().toLowerCase(),qd=pfDigits(Q),lim=pfLim(PF.reg);
+const pfActive=()=>(Q.trim()?1:0)+['sex','amin','amax','st','doc','cs','dx'].filter(k=>PF[k]!=='').length+(PF.reg!='all'?1:0)+(PF.from?1:0)+(PF.to?1:0);
+function pfList(bal){bal=bal||pfBal();const q=Q.trim().toLowerCase(),qd=pfDigits(Q),lim=pfLim(PF.reg),t0=PF.from?new Date(PF.from+'T00:00:00').getTime():0,t1=PF.to?new Date(PF.to+'T00:00:00').getTime()+DAY:0;
  const l=S.patients.filter(p=>{
   if(q){const hay=(p.name+' '+p.card+' '+p.phone+' '+(p.doc||'')+' '+(p.branch||'')).toLowerCase();if(!hay.includes(q)&&!(qd.length>=4&&pfDigits(p.phone).includes(qd.slice(-9))))return false}
   if(PF.sex&&p.sex!=PF.sex)return false;const a=+p.age;
@@ -449,6 +481,7 @@ function pfList(bal){bal=bal||pfBal();const q=Q.trim().toLowerCase(),qd=pfDigits
   if(PF.st=='open'&&p.fin)return false;if(PF.st=='fin'&&!p.fin)return false;
   if(PF.st=='due'&&!(bal[p.id]>.005))return false;if(PF.st=='norec'&&(p.d.rec||[]).length)return false;
   if(PF.cs&&!pfCs(p).includes(PF.cs))return false;if(PF.dx&&!pfDx(p).includes(PF.dx))return false;
+  if(t0&&p.date<t0)return false;if(t1&&p.date>=t1)return false;
   return !(lim&&p.date<lim)});
  const s=PF.sort,by={new:(a,b)=>b.date-a.date,old:(a,b)=>a.date-b.date,name:(a,b)=>String(a.name).localeCompare(String(b.name)),card:(a,b)=>(+a.card||0)-(+b.card||0),age:(a,b)=>(+a.age||0)-(+b.age||0),bal:(a,b)=>(bal[b.id]||0)-(bal[a.id]||0)};
  return l.sort(by[s]||by.new)}
@@ -464,13 +497,16 @@ function pfSummaryHtml(l,bal){const d=pfSummary(l,bal),blk=(t,items)=>`<div clas
 function pfRows(l,bal){return l.map(p=>[p.card,p.name,p.sex,p.age,p.phone,p.doc||'',fd(p.date),pfDx(p).join('; '),bal[p.id]||0])}
 const PF_HEAD=['Card','Name','Sex','Age','Phone','Doctor','Registered','Diagnosis','Balance'];
 function pfCsv(){const b=pfBal();csvDl('patients',PF_HEAD,pfRows(pfList(b),b))}
-function pfPrint(){const b=pfBal(),l=pfList(b),f=[Q.trim()&&'search "'+Q.trim()+'"',PF.sex,PF.st&&(PF_ST.find(x=>x[0]==PF.st)||[])[1],PF.doc,PF.cs,PF.dx].filter(Boolean).join(', ');
+function pfPrint(){const b=pfBal(),l=pfList(b),f=[Q.trim()&&'search "'+Q.trim()+'"',PF.from&&'from '+fdate(PF.from),PF.to&&'to '+fdate(PF.to),PF.sex,PF.st&&(PF_ST.find(x=>x[0]==PF.st)||[])[1],PF.doc,PF.cs,PF.dx].filter(Boolean).join(', ');
  printHtml('Patients',docHead('Patient List',H(l.length+' patients'+(f?' - '+f:'')))+tbl2(PF_HEAD,pfRows(l,b).map(r=>r.map((v,i)=>i==8?ETB(v):H(v))),null,[8])+(PF.chart?'<h2>Summary</h2>'+pfSummaryPrint(l,b):''))}
 function pfSummaryPrint(l,b){const d=pfSummary(l,b),t=(n,a)=>a.length?`<div class="blk"><b>${n}</b>${tbl2(['Item','Patients'],a.map(x=>[H(x[0]),x[1]]),null,[1])}</div>`:'';return t('Sex',d.sex)+t('Age groups',d.age)+t('Top diagnoses',d.dx)+t('Case types',d.cs)+t('New patients, last 6 months',d.mo)}
 function pfSet(k,v){PF[k]=v;pfUp()}
-function pfClear(){PF={sex:'',amin:'',amax:'',st:'',doc:'',cs:'',dx:'',reg:'all',sort:PF.sort,chart:PF.chart};Q='';const q=$('q');if(q)q.value='';go('recent')}
+function pfDt(k){const e=$('pf_'+k),w=e&&e.closest('.rf-dt');if(w)w.dataset.un='';PF[k]=e?e.value:'';pfUp()}
+function pfDtClr(k){const w=$('pf_'+k+'w');if(w)w.dataset.un='1';PF[k]='';pfUp()}
+const pfDtF=(k,t)=>`<div id="pf_${k}w" class="rf-dt" data-un="${PF[k]?'':'1'}"><label class="block text-xs font-medium text-gray-600 mb-1">${t}<span class="rf-un">any date</span><a class="rf-clr" onclick="pfDtClr('${k}')">clear</a></label>${dateField('pf_'+k,PF[k]||undefined,"pfDt('"+k+"')")}</div>`;
+function pfClear(){PF={sex:'',amin:'',amax:'',st:'',doc:'',cs:'',dx:'',reg:'all',from:'',to:'',sort:PF.sort,chart:PF.chart};Q='';const q=$('q');if(q)q.value='';go('recent')}
 function pfRes(){const bal=pfBal(),b=bal,l=pfList(bal),n=pfActive(),can=canDel();
- const rows=l.map(p=>`<tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="go('patient','${p.id}')"><td class="p-2">${H(p.card)}</td><td><div class="flex items-center gap-2">${ph(p,'w-7 h-7')}<span>${H(p.name)}</span></div></td><td class="hidden sm:table-cell">${H(p.sex||'')} ${H(p.age||'')}</td><td>${H(p.phone)}</td><td class="hidden md:table-cell">${H(p.doc||'')}</td><td>${ds(p.date)}</td><td class="hidden sm:table-cell text-right">${bal[p.id]>.005?`<span class="text-rose-600">${ETB(bal[p.id])}</span>`:''}</td><td class="text-rose-600" ${can?`onclick="event.stopPropagation();delPat('${p.id}')"`:''}>${can?'<i class="fa fa-trash"></i>':''}</td></tr>`).join('');
+ const rows=l.map(p=>`<tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="go('patient','${p.id}')"><td class="p-2">${H(p.card)}</td><td><div class="flex items-center gap-2">${ph(p,'w-7 h-7')}<span>${H(p.name)}</span></div></td><td class="hidden sm:table-cell">${H(p.sex||'')} ${H(p.age||'')}</td><td>${telA(p.phone)}</td><td class="hidden md:table-cell">${H(p.doc||'')}</td><td>${ds(p.date)}</td><td class="hidden sm:table-cell text-right">${bal[p.id]>.005?`<span class="text-rose-600">${ETB(bal[p.id])}</span>`:''}</td><td class="text-rose-600" ${can?`onclick="event.stopPropagation();delPat('${p.id}')"`:''}>${can?'<i class="fa fa-trash"></i>':''}</td></tr>`).join('');
  return `<div class="flex flex-wrap items-center justify-between gap-2 mb-2"><div class="text-sm text-gray-600"><b>${l.length}</b> of ${S.patients.length} patients${n?` <span class="text-xs">(${n} filter${n>1?'s':''} on)</span>`:''}</div><div class="flex flex-wrap gap-2"><button onclick="PF.chart=!PF.chart;pfUp()" class="px-3 py-1.5 rounded-md text-sm ${PF.chart?'bg-red-600 text-white':'bg-gray-200'}"><i class="fa fa-chart-pie mr-1"></i>Summary charts</button><button onclick="pfCsv()" class="bg-gray-200 px-3 py-1.5 rounded-md text-sm"><i class="fa fa-file-csv mr-1"></i>CSV</button><button onclick="asPdf('patients',pfPrint)" class="bg-gray-200 px-3 py-1.5 rounded-md text-sm"><i class="fa fa-file-pdf mr-1"></i>PDF</button><button onclick="pfPrint()" class="bg-gray-200 px-3 py-1.5 rounded-md text-sm"><i class="fa fa-print mr-1"></i>Print</button></div></div>
  ${PF.chart?pfSummaryHtml(l,b):''}<div class="bg-white rounded-lg shadow p-3"><div class="overflow-x-auto"><table class="w-full text-sm"><tr class="text-left border-b"><th class="p-2">Card</th><th>Name</th><th class="hidden sm:table-cell">Sex / Age</th><th>Phone</th><th class="hidden md:table-cell">Doctor</th><th>Registered</th><th class="hidden sm:table-cell text-right">Balance</th><th></th></tr>${rows||'<tr><td colspan="8" class="p-4 text-center text-gray-500">No patients match. Try clearing some filters.</td></tr>'}</table></div></div>`}
 function pfUp(){const e=$('pfres');if(e)e.innerHTML=pfRes();const c=$('pfcount');if(c){const n=pfActive();c.textContent=n?n+' on':''}}
@@ -480,7 +516,7 @@ function recent(){const sel=(k,opts)=>`<select onchange="pfSet('${k}',this.value
  `<details class="bg-white rounded-lg shadow mb-3" ${n?'open':''}><summary class="p-3 cursor-pointer font-medium"><i class="fa fa-filter mr-2 text-red-600"></i>Search filters <span id="pfcount" class="text-xs text-red-600 ml-1">${n?n+' on':''}</span></summary><div class="p-3 pt-0"><p class="text-xs text-gray-500 mb-3">The search box above finds name, card number, phone (any format) or doctor. Use these filters to narrow further.</p>
  <div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div>${lbl('Sex')}${sel('sex',[['','Any'],['Female','Female'],['Male','Male']])}</div><div>${lbl('Age from')}<input type="number" min="0" inputmode="numeric" class="inp" value="${H(PF.amin)}" oninput="pfSet('amin',this.value)"></div><div>${lbl('Age to')}<input type="number" min="0" inputmode="numeric" class="inp" value="${H(PF.amax)}" oninput="pfSet('amax',this.value)"></div><div>${lbl('Status')}${sel('st',PF_ST)}</div>
  <div>${lbl('Doctor')}${sel('doc',[['','Any doctor'],...docs.map(d=>[d,d])])}</div><div>${lbl('Case type (Rx plan)')}${sel('cs',[['','Any case type'],...RXCAT.filter(Boolean).map(c=>[c,c])])}</div><div>${lbl('Diagnosis')}${sel('dx',[['','Any diagnosis'],...dxs.map(d=>[d,d])])}</div><div>${lbl('Registered')}${sel('reg',PF_REG)}</div>
- <div>${lbl('Sort by')}${sel('sort',PF_SORT)}</div><div class="flex items-end"><button onclick="pfClear()" class="px-3 py-2 rounded-md bg-gray-200 text-sm w-full"><i class="fa fa-xmark mr-1"></i>Clear all</button></div></div></div></details><div id="pfres">${pfRes()}</div>`}
+ <div>${pfDtF('from','Registered from')}</div><div>${pfDtF('to','Registered to')}</div><div>${lbl('Sort by')}${sel('sort',PF_SORT)}</div><div class="flex items-end"><button onclick="pfClear()" class="px-3 py-2 rounded-md bg-gray-200 text-sm w-full"><i class="fa fa-xmark mr-1"></i>Clear all</button></div></div></div></details><div id="pfres">${pfRes()}</div>`}
 /* ---------- Comprehensive Dental Record: form definition (one source for the screen form, the print and the blank form) ----------
    Field kinds:  text | area | date | radio | multi | yn (No / Yes + details) | cond (tick box that opens sub-fields) | rows (repeatable table) | chart (FDI tooth chart)
    An option called "Other" gets its own text box (stored as <key>_other). */
